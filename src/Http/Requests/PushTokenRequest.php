@@ -1,6 +1,6 @@
 <?php
 
-namespace WooSignal\LaraApp\Http\Requests;
+namespace WooSignal\LaravelFCM\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

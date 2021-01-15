@@ -1,12 +1,12 @@
 <?php
 
-namespace WooSignal\LaraApp\Console;
+namespace WooSignal\LaravelFCM\Console;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use WooSignal\LaraApp\Console\Traits\DetectsApplicationNamespace;
+use WooSignal\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 use Illuminate\Support\Facades\Schema;
-use WooSignal\LaraApp\Models\LaraAppUser;
+use WooSignal\LaravelFCM\Models\LaraAppUser;
 use Hash;
 
 class InstallCommand extends Command
@@ -18,14 +18,14 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'laraapp:install';
+    protected $signature = 'laravelfcm:install';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Install all of the LaraApp resources';
+    protected $description = 'Install all of the Laravel FCM Notify resources';
 
     /**
      * Execute the console command.
@@ -34,44 +34,29 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        $this->comment('Publishing LaraApp Service Provider...');
-        $this->callSilent('vendor:publish', ['--tag' => 'laraapp-provider']);
+        $this->comment('Publishing Laravel FCM Notify Service Provider...');
+        $this->callSilent('vendor:publish', ['--tag' => 'laravel-fcm-provider']);
 
-        $this->comment('Publishing LaraApp Configuration...');
-        $this->callSilent('vendor:publish', ['--tag' => 'laraapp-config']);
+        $this->comment('Publishing Laravel FCM Notify Configuration...');
+        $this->callSilent('vendor:publish', ['--tag' => 'laravel-fcm-config']);
 
-        $this->registerLaraAppServiceProvider();
+        $this->registerFcmAppServiceProvider();
 
-        $this->info('LaraApp scaffolding installed successfully.');
+        $this->info('Laravel FCM Notify scaffolding installed successfully.');
 
         $arrTablesMissing = [];
-        if (!Schema::hasTable('la_app_users')) {
-            $arrTablesMissing[] = 'la_app_users';
-        }
-        if (!Schema::hasTable('la_user_devices')) {
-            $arrTablesMissing[] = 'la_user_devices';
-        }
-        if (!Schema::hasTable('la_app_requests')) {
-            $arrTablesMissing[] = 'la_app_requests';
+        if (!Schema::hasTable('user_devices')) {
+            $arrTablesMissing[] = 'user_devices';
         }
 
         if (count($arrTablesMissing) > 0) {
-            $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for LaraApp to work...');
+            $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for Laravel FCM Notify to work...');
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
-                $this->comment('Running LaraApp migration...');
-                $this->call('migrate', ['--path' => 'vendor/woosignal/laravel-laraapp/src/database/migrations']);
+                $this->comment('Running Laravel FCM Notify migration...');
+                $this->call('migrate', ['--path' => 'vendor/woosignal/laravel-fcm-notify/src/database/migrations']);
 
-                if (Schema::hasTable('la_app_users')) {
-                    $userDefault = LaraAppUser::where('email', '=', 'me@lara.app')->first();
-                    if (is_null($userDefault)) {
-                        $userDefault = LaraAppUser::create([
-                            'email' => 'me@lara.app',
-                            'password' => Hash::make('app123')
-                        ]);
-                        $this->info("LaraApp user added to la_app_users\n\nemail: me@lara.app\npassword: app123\n");
-                    }
-                }
+                $this->info("Laravel FCM Notify is installed 🎉");
             }
         }
     }
@@ -81,26 +66,26 @@ class InstallCommand extends Command
      *
      * @return void
      */
-    protected function registerLaraAppServiceProvider()
+    protected function registerFcmAppServiceProvider()
     {
         $namespace = Str::replaceLast('\\', '', $this->getAppNamespace());
 
         $appConfig = file_get_contents(config_path('app.php'));
 
-        if (Str::contains($appConfig, $namespace.'\\Providers\\LaraAppServiceProvider::class')) {
+        if (Str::contains($appConfig, $namespace.'\\Providers\\FcmAppServiceProvider::class')) {
             return;
         }
 
         file_put_contents(config_path('app.php'), str_replace(
             "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL,
-            "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL."        {$namespace}\Providers\LaraAppServiceProvider::class,".PHP_EOL,
+            "{$namespace}\\Providers\EventServiceProvider::class,".PHP_EOL."        {$namespace}\Providers\FcmAppServiceProvider::class,".PHP_EOL,
             $appConfig
         ));
 
-        file_put_contents(app_path('Providers/LaraAppServiceProvider.php'), str_replace(
+        file_put_contents(app_path('Providers/FcmAppServiceProvider.php'), str_replace(
             "namespace App\Providers;",
             "namespace {$namespace}\Providers;",
-            file_get_contents(app_path('Providers/LaraAppServiceProvider.php'))
+            file_get_contents(app_path('Providers/FcmAppServiceProvider.php'))
         ));
     }
 }

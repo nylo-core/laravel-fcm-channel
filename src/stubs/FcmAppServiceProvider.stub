@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Providers;
+
+use WooSignal\LaravelFCM\LaravelFcmApplicationServiceProvider;
+
+class FcmAppServiceProvider extends LaravelFcmApplicationServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        parent::boot();
+    }
+
+   
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace WooSignal\LaraApp\Console\Traits;
+namespace WooSignal\LaravelFCM\Console\Traits;
 
 use Illuminate\Container\Container;
 

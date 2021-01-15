@@ -1,94 +1,36 @@
-# LaraApp for Laravel, a pocket friendly IOS & Android companion app.
+# Notify FCM for Laravel, notifications made easy.
 
-[Official LaraApp package](https://thelara.app)
+*This is still in dev so DO NOT use in prod.*
+
+[Official WooSignal package](https://woosignal.com)
 <br>
 <br>
-Link your smartphone to your Laravel project with LaraApp. 
-Our package enables you to manage your project on the go, some features include:
-* Notifications for users signed up
-* View storage logs
-* Routes
-* Charts for users signed up
-* Run artisan commands
+Manage FCM notifications with ease with Laravel FCM notfiy.
+This package also has a mobile package for Flutter with you want to add notifications to your app.
 
-[IOS App](https://apps.apple.com/us/app/laraapp-for-laravel-artisans/id1489590015)
-<br>
-[Android App](https://play.google.com/store/apps/details?id=com.mavsoft.laraapp)
-
-Download the IOS/Android app for free and link your Laravel project, follow the installtion below once you have the app.
+This package has been bulit to make sending fcm messages easier.
+* Add multiple (FCM) devices to a model in Laravel
+* Routes for adding new devices and linking them to a model
+* Flutter mobile package to speed you development with notifications
 
 ## Installation
 
 First, install the package via composer:
 
 ``` bash
-composer require woosignal/laravel-laraapp
+composer require woosignal/laravel-notify-fcm
 ```
 
 The package will automatically register itself.
 
 ## Configuration
 
-Publish the LaraApp configuration:
+Publish the Laravel configuration:
 
 ```bash
-php artisan laraapp:install
+php artisan laravelfcm:install
 ```
 
-It will also ask if you want to run the migrations for LaraApp which adds 3 new tables to your project.
-When the installation has finished, by default your login details for your user will as follows:
-<br>`Email: me@lara.app`
-<br>`Password: app123`
-
-You can change the login details by running `php artisan laraapp:updateuser`
-
-## Config
-Once you run the php artisan laraapp:install command, it will copy the default config to `config/laraapp.php` where you can edit it.
-
-## Authorization
-
-If your Laravel site's enviroment is set to production, you'll need to add users who you want to be able to access the **/lara-app/link** route inside your LaraAppServiceProvider.php.
-<br>
-`app/Providers/LaraAppServiceProvider.php`
-<br>
-In this file you should see the following:
-```php
-protected function gate()
-{
-    Gate::define('viewLaraApp', function ($user) {
-        return in_array($user->email, [
-            'taylorotwell@laravel.com',
-            // e.g. above...
-        ]);
-    });
-}
-```
-
-
-**Next**
-
-Open your **VerifyCsrfToken.php** file and add the **lara-app/\*** route to the except array.
-`app/Http/Middleware/VerifyCsrfToken.php`
-
-```php 
-protected $except = [
-        'lara-app/*'
-        // ...
-    ];
-```
-
-## Testing
-Try and access https://mysite.com/lara-app/link
-If you can access this then the setup is ready for the mobile app to connect too.
-<br>
-If you can't access the route (seeing 404/403 error), try running the following.
-<br>
-`php artisan config:clear && php artisan route:clear`
-<br>
-Or run `php artisan optimize`
-
-## Documentation
-You can view our full documentation here <br>[LaraApp Docs](https://thelara.app/docs/1.0/getting-started)
 
 ## Changelog
 
@@ -101,7 +43,6 @@ If you discover any security related issues, please email agordon@woosignal.com 
 ## Credits
 
 - [Anthony Gordon](https://twitter.com/anthonygordn)
-- [All Contributors](../../contributors)
 
 ## Support us
 
