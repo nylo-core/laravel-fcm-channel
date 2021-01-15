@@ -1,6 +1,6 @@
 # Notify FCM for Laravel, notifications made easy.
 
-*This is still in dev so DO NOT use in prod.*
+This is still in dev so **DO NOT** use in prod.
 
 [Official WooSignal package](https://woosignal.com)
 <br>
