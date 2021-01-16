@@ -18,7 +18,7 @@ class AppApiRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!is_string($request->header('X-DMeta'))) {
+        if (!is_string($request->header('X-DMeta')) || $request->user() == null) {
             abort(401);
         }
 
