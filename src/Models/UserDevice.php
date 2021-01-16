@@ -2,12 +2,10 @@
 
 namespace WooSignal\LaravelFCM\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class UserDevice extends Model
 {
-    // use SoftDeletes;
 
     protected $table = 'user_devices';
     
@@ -17,7 +15,16 @@ class UserDevice extends Model
      * @var array
      */
     protected $fillable = [
-        'model','brand','os','version','uuid','app_project_id','is_active','notifyable_id','notifyable_type'
+        'uuid',
+        'display_name',
+        'model',
+        'brand',
+        'manufacturer',
+        'version',
+        'notifyable_id',
+        'notifyable_type',
+        'push_token',
+        'is_active'
     ];
 
     /**

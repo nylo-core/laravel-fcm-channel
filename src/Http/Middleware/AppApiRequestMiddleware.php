@@ -4,8 +4,8 @@ namespace WooSignal\LaravelFCM\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use WooSignal\LaravelFCM\Domain\UserDevice\UserDevice;
-use App\Models\AppAPIRequest;
+use WooSignal\LaravelFCM\Models\UserDevice;
+use WooSignal\LaravelFCM\Models\AppAPIRequest;
 
 class AppApiRequestMiddleware
 {
@@ -18,8 +18,6 @@ class AppApiRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $path = $request->path();
-
         if (!is_string($request->header('X-DMeta'))) {
             abort(401);
         }
@@ -27,21 +25,27 @@ class AppApiRequestMiddleware
         $dMeta = json_decode($request->header('X-DMeta'), true);
 
         if (!empty($dMeta)) {
-            
             // get device
             $device = UserDevice::firstOrCreate(
                 ['uuid' => $dMeta['uuid']],
                 [
                     'uuid' => $dMeta['uuid'],
                     'model' => $dMeta['model'],
-                    'brand' => $dMeta['brand'],
-                    'os' => $dMeta['os'],
+                    'display_name' => $dMeta['display_name'],
+                    'platform' => $dMeta['platform'],
                     'version' => $dMeta['version'],
-                    'user_id' => $request->user()->id,
+                    'notifyable_id' => $request->user()->id,
+                    'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
                     'is_active' => 1
                 ]
             );
-        
+
+            $appApiRequest = AppAPIRequest::create([
+                'user_device_id' => $device->id,
+                'path' => $request->path(),
+                'ip' => $request->ip(),
+            ]);
+
             $request->request->add(['device' => $device]);
             return $next($request);
         }

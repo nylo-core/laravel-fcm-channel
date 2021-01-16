@@ -15,20 +15,23 @@ class LaravelFcmController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware(function ($request, $next) {
-        //     // $this->userDevice = $request->input('udevice');
-
-        //     return $next($request);
-        // });
+        
     }
 
     public function update(Request $request)
     {
-
+        $request->device->update([
+            'is_active' => $request->is_active
+        ]);
+        return response()->json();
     }
 
     public function store(Request $request)
     {
-        dd('here');
+        $request->device->update([
+            'push_token' => $request->push_token
+        ]);
+        
+        return response()->json();
     }
 }

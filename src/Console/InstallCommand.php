@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use WooSignal\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 use Illuminate\Support\Facades\Schema;
-use WooSignal\LaravelFCM\Models\LaraAppUser;
 use Hash;
 
 class InstallCommand extends Command
@@ -62,7 +61,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Register the LaraApp service provider in the application configuration file.
+     * Register the service provider in the application configuration file.
      *
      * @return void
      */

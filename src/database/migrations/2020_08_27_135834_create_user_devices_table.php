@@ -16,10 +16,9 @@ class CreateUserDevicesTable extends Migration
         Schema::create('user_devices', function (Blueprint $table) {
             $table->id();
             $table->text('uuid');
-            $table->string('display_name')->nullable();
             $table->string('model')->nullable();
-            $table->string('brand')->nullable();
-            $table->string('manufacturer')->nullable();
+            $table->string('display_name')->nullable();
+            $table->string('platform')->nullable();
             $table->string('version')->nullable();
             $table->integer('notifyable_id');
             $table->string('notifyable_type');

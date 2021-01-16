@@ -11,29 +11,40 @@ return [
     | This can be found in project > settings > cloud messaging
     |
     */
-    'fcm_server_key' => '',
+    'fcm_server_key' => env('LARAVEL_FCM_SERVER_KEY'),
 
 
      /*
     |--------------------------------------------------------------------------
-    | LaraApp Path
+    | PATH
     |--------------------------------------------------------------------------
     |
-    | This is the URI path where LaraApp will be accessible from.
+    | This is the URI path where Laravel FCM will be accessible from.
     | Note that the URI will not affect the paths of its internal API that aren't exposed to users.
     |
     */
 
-    'path' => env('LARAVEL_FCM_PATH', 'fcm'),
-
+    'path' => env('LARAVEL_FCM_PATH', 'laravel-fcm-notify'),
 
     /*
     |--------------------------------------------------------------------------
-    | LaraApp Route Middleware
+    | MODEL FOR NOTIFICATIONS
     |--------------------------------------------------------------------------
     |
-    | These middleware will get attached onto each LaraApp route. If you 
-    | want to add your own middleware to this list, you can attached them below.
+    | Here you can set the default notification model for your application.
+    | The below will use the user model for the polymorphic relationship.
+    |
+    */
+
+    'default_notifyable_model' => 'App\Models\User',
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH MIDDLEWARE
+    |--------------------------------------------------------------------------
+    |
+    | When using the Flutter package, the application will try to authenticate
+    | via Laravel sanctum
     |
     */
 

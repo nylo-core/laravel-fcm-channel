@@ -24,7 +24,7 @@ class PushTokenRequest extends FormRequest
     public function rules()
     {
         return [
-            'push_token' => 'required|string|max:255'
+            'push_token' => 'required|string'
         ];
     }
 }

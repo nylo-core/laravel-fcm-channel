@@ -48,7 +48,7 @@ class FcmAppServiceProvider extends ServiceProvider
             ], 'laravel-fcm-provider');
 
             $this->publishes([
-                __DIR__.'/../config/fcm-notify.php' => config_path('laravelfcm.php'),
+                __DIR__.'/../config/laravelfcm.php' => config_path('laravelfcm.php'),
             ], 'laravel-fcm-config');
         }
     }
@@ -72,9 +72,9 @@ class FcmAppServiceProvider extends ServiceProvider
     {
         Route::group([
             'namespace' => 'WooSignal\LaravelFCM\Http\Controllers', 
-            'prefix' => config('laravel-fcm.path', 'laravel-fcm-notify'),
-            'domain' => config('laravel-fcm.domain', null),
-            'middleware' => config('fcm-notify.middleware', 'auth:sanctum'),
+            'prefix' => config('laravelfcm.path', 'laravel-fcm-notify'),
+            'domain' => config('laravelfcm.domain', null),
+            'middleware' => config('laravelfcm.middleware', ['auth:sanctum']),
         ], function () {
             $this->loadRoutesFrom(__DIR__.'/routes/web.php');
         });
@@ -90,11 +90,6 @@ class FcmAppServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 Console\InstallCommand::class
-            ]);
-        } else {
-            $this->commands([
-                // Console\LaNewUsersCommand::class,
-                // Console\LaErrorCommand::class
             ]);
         }
     }

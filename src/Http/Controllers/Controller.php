@@ -2,7 +2,6 @@
 
 namespace WooSignal\LaravelFCM\Http\Controllers;
 
-use WooSignal\LaravelFCM\Http\Middleware\Authenticate;
 use Illuminate\Routing\Controller as BaseController;
 
 class Controller extends BaseController
