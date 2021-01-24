@@ -23,6 +23,10 @@ class FCMChannel
     {
         $payload = $notification->toFcm($notifiable);
 
+        if ($notifiable->canSendNotification() === false) {
+            return;
+        }
+
         $client = new Client();
         $client->injectGuzzleHttpClient(new \GuzzleHttp\Client());
 

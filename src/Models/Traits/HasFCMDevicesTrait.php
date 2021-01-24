@@ -13,4 +13,14 @@ trait HasFCMDevicesTrait
     {
         return $this->morphMany(UserDevice::class, 'notifyable');
     }
+
+    /**
+     * Determines if the devices can be notified.
+     *
+     * @return bool
+     */
+    public function canSendNotification() : bool
+    {
+    	return true;
+    }
 }
