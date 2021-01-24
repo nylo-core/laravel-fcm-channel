@@ -19,7 +19,7 @@ trait HasFCMDevicesTrait
      *
      * @return bool
      */
-    public function canSendNotification() : bool
+    public function canSendNotification($notification) : bool
     {
     	return true;
     }
