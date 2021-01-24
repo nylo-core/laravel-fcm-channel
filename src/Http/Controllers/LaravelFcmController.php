@@ -28,7 +28,7 @@ class LaravelFcmController extends Controller
 
     public function store(Request $request)
     {
-        $request->device->update([
+        $request->input('device')->update([
             'push_token' => $request->push_token
         ]);
         

@@ -27,7 +27,10 @@ class AppApiRequestMiddleware
         if (!empty($dMeta)) {
             // get device
             $device = UserDevice::firstOrCreate(
-                ['uuid' => $dMeta['uuid']],
+                [
+                    'uuid' => $dMeta['uuid'],
+                    'notifyable_id' => $request->user()->id,
+                ],
                 [
                     'uuid' => $dMeta['uuid'],
                     'model' => $dMeta['model'],
