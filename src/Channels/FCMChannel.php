@@ -27,6 +27,11 @@ class FCMChannel
             return;
         }
 
+        $fcmDevices = $notifiable->fcmDevices()->active()->withPushToken();
+        if ($fcmDevices->count() == 0) {
+            return;
+        }
+
         $client = new Client();
         $client->injectGuzzleHttpClient(new \GuzzleHttp\Client());
 
@@ -34,16 +39,16 @@ class FCMChannel
 
         $message = new Message();
         $message->setPriority($payload['priority']);
-        
-        foreach ($notifiable->fcmDevices()->active()->withPushToken()->get() as $device) {
+
+        foreach ($fcmDevices->get() as $device) {
             $message->addRecipient(new Device($device->push_token));
         }
 
         $notification = new FCMNotification($payload['title'], $payload['body']);
-        $notification->setSound('default');
-        $notification->setBadge(1);
+        $notification->setSound((!empty($payload['sound']) ? $payload['sound'] : 'default'));
+        $notification->setBadge((!empty($payload['badge']) ? $payload['badge'] : 1));
 
-        $messageData = ['sound' => 'default'];
+        $messageData = [];
         if (isset($payload['data'])) {
             $messageData['data'] = $payload['data'];
         }
