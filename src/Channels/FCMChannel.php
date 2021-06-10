@@ -47,6 +47,9 @@ class FCMChannel
         $notification = new FCMNotification($payload['title'], $payload['body']);
         $notification->setSound((!empty($payload['sound']) ? $payload['sound'] : 'default'));
         $notification->setBadge((!empty($payload['badge']) ? $payload['badge'] : 1));
+        if (!empty($payload['click_action'])) {
+            $notification->setClickAction($payload['click_action']);
+        }
 
         $messageData = [];
         if (isset($payload['data'])) {
