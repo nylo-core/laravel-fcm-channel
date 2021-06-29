@@ -54,7 +54,7 @@ class FCMChannel
         $messageData = [];
         if (isset($payload['data'])) {
             $messageData['data'] = $payload['data'];
-            
+
             if (!empty($payload['data']["android_channel_id"])) {
                 $messageData["android_channel_id"] = $payload['data']["android_channel_id"];
             }
@@ -64,6 +64,8 @@ class FCMChannel
         ->setData($messageData);
 
         try {
+            Log::debug($message->jsonSerialize());
+            
             $client->send($message);
         } catch (Exception $e) {
             Log::error($e->getMessage());   
