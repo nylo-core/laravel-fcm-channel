@@ -47,6 +47,8 @@ class FCMChannel
         $notification = new FCMNotification($payload['title'], $payload['body']);
         $notification->setSound((!empty($payload['sound']) ? $payload['sound'] : 'default'));
         $notification->setBadge((!empty($payload['badge']) ? $payload['badge'] : 1));
+        $notification->setAndroidChannelId((!empty($payload['android_channel_id']) ? $payload['android_channel_id'] : ""));
+
         if (!empty($payload['click_action'])) {
             $notification->setClickAction($payload['click_action']);
         }
@@ -54,18 +56,12 @@ class FCMChannel
         $messageData = [];
         if (isset($payload['data'])) {
             $messageData['data'] = $payload['data'];
-
-            if (!empty($payload['data']["android_channel_id"])) {
-                $messageData["android_channel_id"] = $payload['data']["android_channel_id"];
-            }
         }
         
         $message->setNotification($notification)
         ->setData($messageData);
 
         try {
-            Log::debug(json_encode($message->getJsonData()));
-
             $client->send($message);
         } catch (Exception $e) {
             Log::error($e->getMessage());   

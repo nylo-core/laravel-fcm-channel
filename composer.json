@@ -32,6 +32,12 @@
         "illuminate/support": "~5.8.0|6.x|7.x|8.x",
         "nesbot/carbon": "^1.21|^2.0"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/agordn52/php-firebase-cloud-messaging"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "WooSignal\\LaravelFCM\\": "src/"
