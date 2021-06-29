@@ -64,7 +64,7 @@ class FCMChannel
         ->setData($messageData);
 
         try {
-            Log::debug(json_encode($message->jsonSerialize()));
+            Log::debug(json_encode($message->getJsonData()));
 
             $client->send($message);
         } catch (Exception $e) {
