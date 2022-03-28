@@ -36,7 +36,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## Security
 
-If you discover any security related issues, please email agordon@woosignal.com instead of using the issue tracker.
+If you discover any security related issues, please email hello@veskodigital.com instead of using the issue tracker.
 
 ## Credits
 
@@ -44,7 +44,7 @@ If you discover any security related issues, please email agordon@woosignal.com 
 
 ## Support us
 
-WooSignal is a development team based in the UK, we do mobile and web applications [on our website](https://woosignal.com).
+VeskoDigital is a development team based in the UK, we do mobile and web applications [on our website](https://veskodigital.com).
 
 ## License
 
