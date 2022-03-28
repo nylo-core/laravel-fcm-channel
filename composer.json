@@ -13,8 +13,8 @@
     "authors": [
         {
             "name": "Anthony Gordon",
-            "email": "agordon@woosignal.com",
-            "homepage": "https://woosignal.com",
+            "email": "hello@veskodigital.com",
+            "homepage": "https://veskodigital.com",
             "role": "Developer"
         }
     ],
@@ -28,14 +28,14 @@
         "php": "^7.2",
         "sngrl/php-firebase-cloud-messaging": "dev-master",
         "kreait/firebase-php": "^5.8",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x",
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x",
         "nesbot/carbon": "^1.21|^2.0"
     },
     "require-dev": {
         "orchestra/testbench": "~3.8.0|^4.0",
         "phpunit/phpunit": "^8.0",
         "php": "^7.2",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x",
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x",
         "nesbot/carbon": "^1.21|^2.0"
     },
     "autoload": {
