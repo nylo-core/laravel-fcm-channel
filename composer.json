@@ -1,5 +1,5 @@
 {
-    "name": "woosignal/laravel-fcm-notify",
+    "name": "veskodigital/laravel-fcm-notify",
     "description": "Send notifications from Firebase cloud messenger from Laravel.",
     "type": "library",
     "keywords": [
@@ -8,7 +8,7 @@
         "FCM notifications",
         "Laravel notify"
     ],
-    "homepage": "https://github.com/woosignal/laravel-fcm-notify",
+    "homepage": "https://github.com/veskodigital/laravel-fcm-notify",
     "license": "MIT",
     "authors": [
         {
