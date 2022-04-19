@@ -1,5 +1,5 @@
 # Changelog
 
-## 0.0.1 - 2021-01-15
+## 1.0.0 - 2022-04-19
 
 - Initial release

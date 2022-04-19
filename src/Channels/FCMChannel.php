@@ -1,12 +1,12 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Channels;
+namespace VeskoDigital\LaravelFCM\Channels;
 
 use Illuminate\Notifications\Notification;
-use sngrl\PhpFirebaseCloudMessaging\Client;
-use sngrl\PhpFirebaseCloudMessaging\Message;
-use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
-use sngrl\PhpFirebaseCloudMessaging\Notification as FCMNotification;
+use VeskoDigital\LaravelFCM\FcmCloud\Client;
+use VeskoDigital\LaravelFCM\FcmCloud\Message;
+use VeskoDigital\LaravelFCM\FcmCloud\Recipient\Device;
+use VeskoDigital\LaravelFCM\FcmCloud\FCMNotification;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -28,6 +28,7 @@ class FCMChannel
         }
 
         $fcmDevices = $notifiable->fcmDevices()->active()->withPushToken();
+
         if ($fcmDevices->count() == 0) {
             return;
         }
@@ -37,34 +38,57 @@ class FCMChannel
 
         $client->setApiKey(config('laravelfcm.fcm_server_key', ''));
 
-        $message = new Message();
-        $message->setPriority($payload['priority']);
+        // Chunk and send messages to recipients
+        $fcmDevices->chunk(1000, function ($devices) use ($client, $payload) {
 
-        foreach ($fcmDevices->get() as $device) {
-            $message->addRecipient(new Device($device->push_token));
-        }
+            // add recipients to notfication message
+            $message = new Message();
 
-        $notification = new FCMNotification($payload['title'], $payload['body']);
-        $notification->setSound((!empty($payload['sound']) ? $payload['sound'] : 'default'));
-        $notification->setBadge((!empty($payload['badge']) ? $payload['badge'] : 1));
-        $notification->setAndroidChannelId((!empty($payload['android_channel_id']) ? $payload['android_channel_id'] : ""));
+            $priority = 'high';
+            if (!empty($payload['priority'])) {
+                $priority = $payload['priority'];
+            }
+            $message->setPriority($priority);
 
-        if (!empty($payload['click_action'])) {
-            $notification->setClickAction($payload['click_action']);
-        }
+            foreach ($devices as $device) {
+                $message->addRecipient(new Device($device->push_token));
+            }
 
-        $messageData = [];
-        if (isset($payload['data'])) {
-            $messageData['data'] = $payload['data'];
-        }
-        
-        $message->setNotification($notification)
-        ->setData($messageData);
+            // notfication payload
+            $notification = new FCMNotification($payload['title'], $payload['body']);
+            
+            $sound = (!empty($payload['sound']) ? $payload['sound'] : 'default');
+            $notification->setSound($sound);
+            
+            if (!empty($payload['badge'])) {
+                $notification->setBadge($payload['badge']);
+            }
+            
+            if (!empty($payload['android_channel_id'])) {
+                $notification->setAndroidChannelId($payload['android_channel_id']);
+            }
 
-        try {
-            $client->send($message);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());   
-        }
+            if (!empty($payload['click_action'])) {
+                $notification->setClickAction($payload['click_action']);
+            }
+
+            // set notfication
+            $notificationMessage = $message->setNotification($notification);
+
+            if (!empty($payload['data'])) {
+                $messageData = [
+                    'data' => $payload['data']
+                ];
+
+                $notificationMessage->setData($messageData);
+            }
+
+            // send notfication
+            try {
+                $client->send($notificationMessage);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
+        });
     }
 }

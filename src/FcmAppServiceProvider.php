@@ -1,12 +1,11 @@
 <?php
 
-namespace WooSignal\LaravelFCM;
+namespace VeskoDigital\LaravelFCM;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
-use Gate;
+use Illuminate\Support\Facades\Notification;
+use VeskoDigital\LaravelFCM\Channels\FCMChannel;
 
 class FcmAppServiceProvider extends ServiceProvider
 {
@@ -21,7 +20,9 @@ class FcmAppServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerMigrations();
 
-        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
+        Notification::extend('fcm_channel', function ($app) {
+            return new FCMChannel();
+        });
     }
 
     /**
@@ -36,7 +37,7 @@ class FcmAppServiceProvider extends ServiceProvider
     }
 
      /**
-     * Setup the resource publishing groups for LaraApp.
+     * Setup the resource publishing groups for FCM Laravel.
      *
      * @return void
      */
@@ -54,7 +55,7 @@ class FcmAppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the LaraApp migrations.
+     * Register the FCM Laravel migrations.
      *
      * @return void
      */
@@ -64,24 +65,27 @@ class FcmAppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the LaraApp routes.
+     * Register the FCM Laravel routes.
      *
      * @return void
      */
     protected function registerRoutes()
     {
+        $middleware = config('laravelfcm.middleware', ['auth:sanctum']);
+        array_push($middleware, \VeskoDigital\LaravelFCM\Http\Middleware\AppApiRequestMiddleware::class);
+
         Route::group([
-            'namespace' => 'WooSignal\LaravelFCM\Http\Controllers', 
-            'prefix' => config('laravelfcm.path', 'laravel-fcm-notify'),
+            'namespace' => 'VeskoDigital\LaravelFCM\Http\Controllers', 
+            'prefix' => config('laravelfcm.path', 'api/fcm/'),
             'domain' => config('laravelfcm.domain', null),
-            'middleware' => config('laravelfcm.middleware', ['auth:sanctum']),
+            'middleware' => $middleware,
         ], function () {
             $this->loadRoutesFrom(__DIR__.'/routes/web.php');
         });
     }
 
      /**
-     * Register the LaraApp Artisan commands.
+     * Register the FCM Laravel Artisan commands.
      *
      * @return void
      */

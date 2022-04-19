@@ -1,17 +1,17 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Models\Traits;
-use WooSignal\LaravelFCM\Models\UserDevice;
+namespace VeskoDigital\LaravelFCM\Models\Traits;
 
-trait HasFCMDevicesTrait
+use VeskoDigital\LaravelFCM\Models\FcmUserDevice;
+
+trait HasFCMDevices
 {
-
 	/**
      * Get the fcm devices.
      */
     public function fcmDevices()
     {
-        return $this->morphMany(UserDevice::class, 'notifyable');
+        return $this->morphMany(FcmUserDevice::class, 'notifyable');
     }
 
     /**

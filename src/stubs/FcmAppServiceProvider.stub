@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use WooSignal\LaravelFCM\LaravelFcmApplicationServiceProvider;
+use VeskoDigital\LaravelFCM\LaravelFcmApplicationServiceProvider;
 
 class FcmAppServiceProvider extends LaravelFcmApplicationServiceProvider
 {

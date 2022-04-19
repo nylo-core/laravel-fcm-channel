@@ -1,11 +1,13 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Http\Middleware;
+namespace VeskoDigital\LaravelFCM\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use WooSignal\LaravelFCM\Models\UserDevice;
-use WooSignal\LaravelFCM\Models\AppAPIRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use VeskoDigital\LaravelFCM\Models\FcmDeviceAPIRequest;
+use VeskoDigital\LaravelFCM\Models\FcmUserDevice;
 
 class AppApiRequestMiddleware
 {
@@ -18,41 +20,58 @@ class AppApiRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!is_string($request->header('X-DMeta')) || $request->user() == null) {
-            abort(401);
+        $user = $request->user();
+        if (empty($user)) {
+            Log::info("FCM middleware did not receive an authenticated user");
+            abort(403);
         }
 
-        $dMeta = json_decode($request->header('X-DMeta'), true);
+        $deviceMeta = $request->header('X-DMeta');
+        if (!is_string($deviceMeta)) {
+            Log::info("FCM middleware received a malformed X-DMeta header");
+            abort(400);
+        }
 
-        if (!empty($dMeta)) {
-            // get device
-            $device = UserDevice::firstOrCreate(
-                [
-                    'uuid' => $dMeta['uuid'],
-                    'notifyable_id' => $request->user()->id,
-                ],
-                [
-                    'uuid' => $dMeta['uuid'],
-                    'model' => $dMeta['model'],
-                    'display_name' => $dMeta['display_name'],
-                    'platform' => $dMeta['platform'],
-                    'version' => $dMeta['version'],
-                    'notifyable_id' => $request->user()->id,
-                    'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
-                    'is_active' => 1
-                ]
-            );
+        $dMeta = json_decode($deviceMeta, true);
 
-            $appApiRequest = AppAPIRequest::create([
-                'user_device_id' => $device->id,
-                'path' => $request->path(),
-                'ip' => $request->ip(),
-            ]);
+        if (empty($dMeta)) {
+            Log::info("FCM middleware has empty X-DMeta data");
+            abort(400);
+        }
 
-            $request->request->add(['device' => $device]);
+        try {
+            DB::transaction(function () use ($user, $dMeta, &$request) {
+                // get device
+                $device = FcmUserDevice::firstOrCreate(
+                    [
+                        'uuid' => $dMeta['uuid'],
+                        'notifyable_id' => $user->id,
+                    ],
+                    [
+                        'uuid' => $dMeta['uuid'],
+                        'model' => $dMeta['model'],
+                        'display_name' => $dMeta['display_name'],
+                        'platform' => $dMeta['platform'],
+                        'version' => $dMeta['version'],
+                        'notifyable_id' => $user->id,
+                        'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
+                        'is_active' => 1
+                    ]
+                );
+    
+                FcmDeviceAPIRequest::create([
+                    'fcm_user_device_id' => $device->id,
+                    'path' => $request->path(),
+                    'ip' => $request->ip(),
+                ]);
+    
+                $request->request->add(['device' => $device]);
+            });
+
             return $next($request);
+        } catch (\Throwable $e) {
+            Log::error(json_encode($e));
+            abort(400);
         }
-
-        abort(401);
     }
 }

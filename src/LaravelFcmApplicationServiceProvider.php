@@ -1,6 +1,6 @@
 <?php
 
-namespace WooSignal\LaravelFCM;
+namespace VeskoDigital\LaravelFCM;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +23,6 @@ class LaravelFcmApplicationServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Console\Traits;
+namespace VeskoDigital\LaravelFCM\Console\Traits;
 
 use Illuminate\Container\Container;
 

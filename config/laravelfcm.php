@@ -23,8 +23,7 @@ return [
     | Note that the URI will not affect the paths of its internal API that aren't exposed to users.
     |
     */
-
-    'path' => env('LARAVEL_FCM_PATH', 'laravel-fcm-notify'),
+    'path' => env('LARAVEL_FCM_PATH', 'api/fcm/'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +34,6 @@ return [
     | The below will use the user model for the polymorphic relationship.
     |
     */
-
     'default_notifyable_model' => 'App\Models\User',
 
     /*
@@ -47,6 +45,17 @@ return [
     | via Laravel sanctum
     |
     */
-
     'middleware' => ['auth:sanctum'],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOMAIN
+    |--------------------------------------------------------------------------
+    |
+    | Here you can define the domain URL that the API can be reached from.
+    | E.g. 'api.mysite.com', by default this is your current domain URL.
+    |
+    */
+    'domain' => null,
 ];

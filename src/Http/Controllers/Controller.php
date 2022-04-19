@@ -1,6 +1,6 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Http\Controllers;
+namespace VeskoDigital\LaravelFCM\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 

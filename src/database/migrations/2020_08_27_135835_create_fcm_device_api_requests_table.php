@@ -3,8 +3,9 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use VeskoDigital\LaravelFCM\Models\FcmUserDevice;
 
-class CreateApiAppRequestsTable extends Migration
+class CreateFcmDeviceApiRequestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +14,9 @@ class CreateApiAppRequestsTable extends Migration
      */
     public function up()
     {
-        Schema::create('api_app_requests', function (Blueprint $table) {
+        Schema::create('fcm_device_api_requests', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_device_id')->unsigned()->index();
-            $table->foreign('user_device_id')->references('id')->on('user_devices');
+            $table->foreignIdFor(FcmUserDevice::class)->constrained();
             $table->text('path')->nullable();
             $table->string('ip')->nullable();
             $table->timestamps();

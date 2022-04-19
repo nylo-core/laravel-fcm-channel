@@ -1,12 +1,11 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Console;
+namespace VeskoDigital\LaravelFCM\Console;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use WooSignal\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
+use VeskoDigital\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 use Illuminate\Support\Facades\Schema;
-use Hash;
 
 class InstallCommand extends Command
 {
@@ -24,7 +23,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Install all of the Laravel FCM Notify resources';
+    protected $description = 'Install all of the Laravel FCM resources';
 
     /**
      * Execute the console command.
@@ -33,30 +32,35 @@ class InstallCommand extends Command
      */
     public function handle()
     {
-        $this->comment('Publishing Laravel FCM Notify Service Provider...');
+        $this->comment('Publishing Laravel FCM Service Provider...');
         $this->callSilent('vendor:publish', ['--tag' => 'laravel-fcm-provider']);
 
-        $this->comment('Publishing Laravel FCM Notify Configuration...');
+        $this->comment('Publishing Laravel FCM Configuration...');
         $this->callSilent('vendor:publish', ['--tag' => 'laravel-fcm-config']);
 
         $this->registerFcmAppServiceProvider();
 
-        $this->info('Laravel FCM Notify scaffolding installed successfully.');
+        $this->info('Laravel FCM scaffolding installed successfully.');
 
         $arrTablesMissing = [];
-        if (!Schema::hasTable('user_devices')) {
-            $arrTablesMissing[] = 'user_devices';
+        if (!Schema::hasTable('fcm_user_devices')) {
+            $arrTablesMissing[] = 'fcm_user_devices';
         }
 
-        if (count($arrTablesMissing) > 0) {
-            $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for Laravel FCM Notify to work...');
+        if (!Schema::hasTable('fcm_api_app_requests')) {
+            $arrTablesMissing[] = 'fcm_api_app_requests';
+        }
+        
+        if (!empty($arrTablesMissing)) {
+            $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for Laravel FCM to work...');
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
-                $this->comment('Running Laravel FCM Notify migration...');
-                $this->call('migrate', ['--path' => 'vendor/woosignal/laravel-fcm-notify/src/database/migrations']);
+                $this->comment('Running Laravel FCM migration...');
+                $this->call('migrate', ['--path' => 'vendor/veskodigital/laravel-fcm-channel/src/database/migrations']);
 
-                $this->info("Laravel FCM Notify is installed 🎉");
+                $this->info("Laravel FCM is installed 🎉");
             }
+            return;
         }
     }
 

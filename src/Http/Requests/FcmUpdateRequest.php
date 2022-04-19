@@ -1,10 +1,11 @@
 <?php
 
-namespace WooSignal\LaravelFCM\Http\Requests;
+namespace VeskoDigital\LaravelFCM\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
-class PushTokenRequest extends FormRequest
+class FcmUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class PushTokenRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -24,7 +25,8 @@ class PushTokenRequest extends FormRequest
     public function rules()
     {
         return [
-            'push_token' => 'required|string'
+            'is_active' => 'nullable|boolean',
+            'push_token' => 'nullable|string'
         ];
     }
 }
