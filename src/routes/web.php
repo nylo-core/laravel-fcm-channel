@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use VeskoDigital\LaravelFCM\Http\Controllers\LaravelFcmController;
 
 Route::put('device', [LaravelFcmController::class, 'update'])->name('laravel_notify_fcm.update');
 
