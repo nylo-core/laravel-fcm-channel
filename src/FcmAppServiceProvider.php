@@ -75,7 +75,6 @@ class FcmAppServiceProvider extends ServiceProvider
         array_push($middleware, \VeskoDigital\LaravelFCM\Http\Middleware\AppApiRequestMiddleware::class);
 
         Route::group([
-            'namespace' => 'VeskoDigital\LaravelFCM\Http\Controllers', 
             'prefix' => config('laravelfcm.path', 'api/fcm/'),
             'domain' => config('laravelfcm.domain', null),
             'middleware' => $middleware,
