@@ -2,9 +2,9 @@
 
 namespace VeskoDigital\LaravelFCM;
 
-use Illuminate\Support\ServiceProvider;
+use VeskoDigital\LaravelFCM\FcmAppServiceProvider;
 
-class LaravelFcmApplicationServiceProvider extends ServiceProvider
+class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
 {
     /**
      * Bootstrap any application services.
