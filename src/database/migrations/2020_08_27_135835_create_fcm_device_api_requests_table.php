@@ -31,6 +31,6 @@ class CreateFcmDeviceApiRequestsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('api_app_requests');
+        Schema::dropIfExists('fcm_device_api_requests');
     }
 }

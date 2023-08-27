@@ -36,6 +36,6 @@ class CreateFcmUserDevicesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_devices');
+        Schema::dropIfExists('fcm_user_devices');
     }
 }
