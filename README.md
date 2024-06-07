@@ -31,7 +31,7 @@ There is also a Flutter [package](https://pub.dev/packages/laravel_fcm) you can 
 First, install the package via composer:
 
 ``` bash
-composer require nylo-core/laravel-fcm-channel
+composer require nylo/laravel-fcm-channel
 ```
 
 The package will automatically register itself.
@@ -188,9 +188,8 @@ Then, add the following snippet to your notification class.
         // or like this
 
         return [
-            'title' => config('app.name'), // Laravel App Name
+            'title' => config('app.name'), // Title of the notification
             'body' => $title, // Body of the notification
-            'priority' => 'high', // Priority
         ];
     }
 ```
@@ -222,14 +221,11 @@ class User {
     public function canSendNotification($notification) : bool
     {
         // $notification - Will return the type of Notification you are trying to send.
-        // E.g. first send a notification which is using the `fcm_channel`
-        // $user->notify(new NewsLetterNotification($order));
+        // E.g. $user->notify(new NewsLetterNotification($order));
+        // $notification = 'App\Notifications\NewsLetterNotification';
         //
-        // The canSendNotification method will be called before dispatching the fcm notifications and
-        // perform a check in this method. If you return True, it will send. If you return False, it will not send.
-        //
-        // You can check the type of notification that is trying to send from the $notification variable.
-        // Using the above example. $notification = 'App\Notifications\NewsLetterNotification'.
+        // The canSendNotification method will be called before dispatching the fcm notification. 
+        // If you return True, it will send. If you return False, it will not send.
 
         if ($notification  == 'App\Notifications\NewsLetterNotification') {
             return ($this->receives_news_letters == true); // example condition
@@ -237,23 +233,8 @@ class User {
     	return true;
     }
 }
-...
-
-class User extends Authenticatable
-{   
-    ...
-
-    /**
-     * Determines if the devices can be notified.
-     *
-     * @return bool
-     */
-    public function canSendNotification($notification) : bool
-    {
-    	return true;
-    }
-}
 ```
+> By default, the `canSendNotification` method will return `true`.
 
 ## Notification Object
 
