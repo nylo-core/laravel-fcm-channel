@@ -56,7 +56,7 @@ class InstallCommand extends Command
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
                 $this->comment('Running Laravel FCM migration...');
-                $this->call('migrate', ['--path' => 'vendor/nylo-core/laravel-fcm-channel/src/database/migrations']);
+                $this->call('migrate', ['--path' => 'vendor/nylo/laravel-fcm-channel/src/database/migrations']);
 
                 $this->info("Laravel FCM is installed 🎉");
             }
