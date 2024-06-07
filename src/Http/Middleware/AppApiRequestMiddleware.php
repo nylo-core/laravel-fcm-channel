@@ -1,13 +1,12 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Http\Middleware;
+namespace Nylo\LaravelFCM\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use VeskoDigital\LaravelFCM\Models\FcmDeviceAPIRequest;
-use VeskoDigital\LaravelFCM\Models\FcmUserDevice;
+use Nylo\LaravelFCM\Models\FcmDevice;
 
 class AppApiRequestMiddleware
 {
@@ -42,7 +41,7 @@ class AppApiRequestMiddleware
         try {
             DB::transaction(function () use ($user, $dMeta, &$request) {
                 // get device
-                $device = FcmUserDevice::firstOrCreate(
+                $device = FcmDevice::firstOrCreate(
                     [
                         'uuid' => $dMeta['uuid'],
                         'notifyable_id' => $user->id,
@@ -58,13 +57,7 @@ class AppApiRequestMiddleware
                         'is_active' => 1
                     ]
                 );
-    
-                FcmDeviceAPIRequest::create([
-                    'fcm_user_device_id' => $device->id,
-                    'path' => $request->path(),
-                    'ip' => $request->ip(),
-                ]);
-    
+
                 $request->request->add(['device' => $device]);
             });
 

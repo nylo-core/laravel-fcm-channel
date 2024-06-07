@@ -1,6 +1,6 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Console\Traits;
+namespace Nylo\LaravelFCM\Console\Traits;
 
 use Illuminate\Container\Container;
 

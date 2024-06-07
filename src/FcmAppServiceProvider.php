@@ -1,11 +1,11 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM;
+namespace Nylo\LaravelFCM;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Notification;
-use VeskoDigital\LaravelFCM\Channels\FCMChannel;
+use Nylo\LaravelFCM\Channels\FCMChannel;
 
 class FcmAppServiceProvider extends ServiceProvider
 {
@@ -50,6 +50,7 @@ class FcmAppServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__.'/../config/laravelfcm.php' => config_path('laravelfcm.php'),
+                __DIR__.'/../config/firebase_service_account_json.php' => config_path('firebase_service_account_json.php'),
             ], 'laravel-fcm-config');
         }
     }
@@ -72,7 +73,7 @@ class FcmAppServiceProvider extends ServiceProvider
     protected function registerRoutes()
     {
         $middleware = config('laravelfcm.middleware', ['auth:sanctum']);
-        array_push($middleware, \VeskoDigital\LaravelFCM\Http\Middleware\AppApiRequestMiddleware::class);
+        array_push($middleware, \Nylo\LaravelFCM\Http\Middleware\AppApiRequestMiddleware::class);
 
         Route::group([
             'prefix' => config('laravelfcm.path', 'api/fcm/'),

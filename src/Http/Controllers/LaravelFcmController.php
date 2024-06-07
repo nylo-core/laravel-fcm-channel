@@ -1,16 +1,18 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Http\Controllers;
+namespace Nylo\LaravelFCM\Http\Controllers;
 
-use VeskoDigital\LaravelFCM\Http\Controllers\Controller;
-use VeskoDigital\LaravelFCM\Http\Requests\FcmUpdateRequest;
-use Illuminate\Http\Request;
-use VeskoDigital\LaravelFCM\Models\FcmUserDevice;
+use Nylo\LaravelFCM\Http\Controllers\Controller;
+use Nylo\LaravelFCM\Http\Requests\FcmUpdateRequest;
 
 class LaravelFcmController extends Controller
 {
     /**
-     * Update a FCMUserDevice
+     * Update a FcmDevice
+     *
+     * @param FcmUpdateRequest $request
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(FcmUpdateRequest $request)
     {
@@ -19,63 +21,13 @@ class LaravelFcmController extends Controller
             $updatePayload['is_active'] = $request->is_active;
         }
 
-        if ($request->has('push_token')) {
-            $updatePayload['push_token'] = $request->push_token;
+        if ($request->has('fcm_token')) {
+            $updatePayload['fcm_token'] = $request->fcm_token;
         }
 
         abort_if(empty($updatePayload), 400);
 
         $didUpdate = $request->device->update($updatePayload);
         return response()->json(['status' => $didUpdate ? 200 : 500]);
-    }
-
-    /**
-     * Store an FCMUserDevice.
-     */
-    public function store(Request $request)
-    {
-        $userId = auth()->user()->id;
-        if (!$request->has('uuid')) {
-            return response()->json(['status' => 400]);
-        }
-
-        $uuid = $request->uuid;
-
-        $updatePayload = [
-            'uuid' => $uuid,
-            'is_active' => 1,
-            'notifyable_id' => $userId,
-            'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
-        ];
-        
-        if ($request->has('model')) {
-            $updatePayload['model'] = $request->model;
-        }
-
-        if ($request->has('display_name')) {
-            $updatePayload['display_name'] = $request->display_name;
-        }
-
-        if ($request->has('platform')) {
-            $updatePayload['platform'] = $request->platform;
-        }
-
-        if ($request->has('version')) {
-            $updatePayload['version'] = $request->version;
-        }
-
-        if ($request->has('is_active')) {
-            $updatePayload['is_active'] = $request->is_active;
-        }
-
-        $fcmUserDevice = FcmUserDevice::firstOrCreate(
-            [
-                'uuid' => $uuid,
-                'notifyable_id' => $userId,
-            ],
-            $updatePayload
-        );
-
-        return response()->json(['status' => $fcmUserDevice ? 200 : 500]);
     }
 }

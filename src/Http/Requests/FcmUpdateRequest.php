@@ -1,6 +1,6 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Http\Requests;
+namespace Nylo\LaravelFCM\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +26,7 @@ class FcmUpdateRequest extends FormRequest
     {
         return [
             'is_active' => 'nullable|boolean',
-            'push_token' => 'nullable|string'
+            'fcm_token' => 'nullable|string'
         ];
     }
 }

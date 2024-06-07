@@ -1,5 +1,5 @@
 {
-    "name": "veskodigital/laravel-fcm-channel",
+    "name": "nylo/laravel-fcm-channel",
     "description": "Send notifications from Firebase cloud messenger from Laravel.",
     "type": "library",
     "keywords": [
@@ -15,37 +15,38 @@
         "iOS",
         "Chrome"
     ],
-    "homepage": "https://github.com/veskodigital/laravel-fcm-channel",
+    "homepage": "https://github.com/nylo-core/laravel-fcm-channel",
     "license": "MIT",
     "authors": [
         {
             "name": "Anthony Gordon",
-            "email": "hello@veskodigital.com",
-            "homepage": "https://veskodigital.com",
+            "email": "support@nylo.dev",
+            "homepage": "https://nylo.dev",
             "role": "Developer"
         }
     ],
     "require": {
         "php": ">=7.2",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x",
-        "nesbot/carbon": "^1.21|^2.0",
-        "guzzlehttp/guzzle": "*"
+        "guzzlehttp/guzzle": "*",
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x",
+        "kreait/firebase-php": "^7.11",
+        "nesbot/carbon": "^1.21|^2.0"
     },
     "require-dev": {
         "orchestra/testbench": "~3.8.0|^4.0",
         "phpunit/phpunit": "^8.0",
         "php": ">=7.2",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x",
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x",
         "nesbot/carbon": "^1.21|^2.0"
     },
     "autoload": {
         "psr-4": {
-            "VeskoDigital\\LaravelFCM\\": "src/"
+            "Nylo\\LaravelFCM\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VeskoDigital\\LaravelFCM\\Test\\": "tests"
+            "Nylo\\LaravelFCM\\Test\\": "tests"
         }
     },
     "scripts": {
@@ -57,10 +58,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VeskoDigital\\LaravelFCM\\FcmAppServiceProvider"
+                "Nylo\\LaravelFCM\\FcmAppServiceProvider"
             ],
             "aliases": {
-                "LaravelFCM": "VeskoDigital\\LaravelFCM\\LaravelFCM"
+                "LaravelFCM": "Nylo\\LaravelFCM\\LaravelFCM"
             }
         }
     }

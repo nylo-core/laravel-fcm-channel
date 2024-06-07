@@ -1,8 +1,8 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM;
+namespace Nylo\LaravelFCM;
 
-use VeskoDigital\LaravelFCM\FcmAppServiceProvider;
+use Nylo\LaravelFCM\FcmAppServiceProvider;
 
 class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
 {
@@ -13,7 +13,7 @@ class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
      */
     public function boot()
     {
-        
+
     }
 
     /**
@@ -23,6 +23,6 @@ class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
      */
     public function register()
     {
-        
+
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Http\Controllers;
+namespace Nylo\LaravelFCM\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 
@@ -13,6 +13,6 @@ class Controller extends BaseController
      */
     public function __construct()
     {
-        
+
     }
 }

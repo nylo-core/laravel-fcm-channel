@@ -1,10 +1,10 @@
 <?php
 
-namespace VeskoDigital\LaravelFCM\Console;
+namespace Nylo\LaravelFCM\Console;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use VeskoDigital\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
+use Nylo\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 use Illuminate\Support\Facades\Schema;
 
 class InstallCommand extends Command
@@ -50,13 +50,13 @@ class InstallCommand extends Command
         if (!Schema::hasTable('fcm_api_app_requests')) {
             $arrTablesMissing[] = 'fcm_api_app_requests';
         }
-        
+
         if (!empty($arrTablesMissing)) {
             $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for Laravel FCM to work...');
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
                 $this->comment('Running Laravel FCM migration...');
-                $this->call('migrate', ['--path' => 'vendor/veskodigital/laravel-fcm-channel/src/database/migrations']);
+                $this->call('migrate', ['--path' => 'vendor/nylo-core/laravel-fcm-channel/src/database/migrations']);
 
                 $this->info("Laravel FCM is installed 🎉");
             }

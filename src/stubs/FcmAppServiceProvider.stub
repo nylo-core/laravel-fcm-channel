@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use VeskoDigital\LaravelFCM\LaravelFcmApplicationServiceProvider;
+use Nylo\LaravelFCM\LaravelFcmApplicationServiceProvider;
 
 class FcmAppServiceProvider extends LaravelFcmApplicationServiceProvider
 {
@@ -16,5 +16,5 @@ class FcmAppServiceProvider extends LaravelFcmApplicationServiceProvider
         parent::boot();
     }
 
-   
+
 }

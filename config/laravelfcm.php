@@ -2,17 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | FCM SERVER TOKEN
-    |--------------------------------------------------------------------------
-    |
-    | FCM server token from Firebase 
-    | This can be found in project > settings > cloud messaging
-    |
-    */
-    'fcm_server_key' => env('LARAVEL_FCM_SERVER_KEY'),
-
 
      /*
     |--------------------------------------------------------------------------

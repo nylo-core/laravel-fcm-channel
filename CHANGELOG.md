@@ -1,5 +1,8 @@
-# Changelog
+## [2.0.0] - 2024-06-07
 
-## 1.0.0 - 2022-04-19
+* Update to use new Firebase config
+* Refactor project
 
-- Initial release
+## [1.0.0] - 2022-04-19
+
+* Initial release

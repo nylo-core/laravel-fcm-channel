@@ -31,7 +31,7 @@ There is also a Flutter [package](https://pub.dev/packages/laravel_fcm) you can 
 First, install the package via composer:
 
 ``` bash
-composer require veskodigital/laravel-fcm-channel
+composer require nylo-core/laravel-fcm-channel
 ```
 
 The package will automatically register itself.
@@ -50,22 +50,38 @@ ServiceProvider to your app.php: `App\Providers\FcmAppServiceProvider::class`
 Then, ask if you want to run the migrations.
 
 Here's the tables it will migrate:
-* fcm_user_devices
-* fcm_user_devices_api_requests
+* fcm_devices
 
-Add your FCM server token to your `.env` file.
+Add your Google Service Account to `firebase_service_account_json`.
 
-```bash
-LARAVEL_FCM_SERVER_KEY="MyFCMServerKey"
+```php
+<?php
+
+return '{
+    "type": "service_account",
+    "project_id": "123456789-me908",
+    "private_key_id": "123456789",
+    "private_key": "-----BEGIN PRIVATE KEY-----\123456789\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-9p9z7@123456789-me908.iam.gserviceaccount.com",
+    "client_id": "123456789",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-9p9z7%123456789-me908.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }';
 ```
 
-You can find your Fcm Server Key in your Firebase Project Settings > Cloud Messaging.
+You can download your Google Service Account in your Firebase Project Settings > Service Accounts > Manage service account permissions > "Actions (three dots) - Manage keys" > Add Key > Create New Key.
+
+Then, paste the JSON into the `firebase_service_account_json` file like in the above example.
+> **Note:** It's best to keep the key values in a `.env` file. Don't commit the JSON file to your repository.
 
 You can fully configure this package in the `config/laravelfcm.php` file (this file should be added after you run `php artisan laravelfcm:install`).
 
 ## Configuring your Model
 
-Add the `HasFCMDevices` trait to your User Model.
+Add the `HasFcmDevices` trait to your User Model.
 ```php
 <?php
 
@@ -73,12 +89,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use VeskoDigital\LaravelFCM\Models\Traits\HasFCMDevices; // Use HasFCMDevices trait
+use Nylo\LaravelFCM\Traits\HasFcmDevices; // Use HasFcmDevices trait
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasFCMDevices; // Add it to your model
+    use HasApiTokens, HasFactory, HasFcmDevices; // Add it to your model
     
     ...
 }
@@ -112,9 +128,9 @@ Value:
 ```
 {
     "uuid": "12992", // required, a uuid which should be from the device. The value must be persistented on the device.
-    "model": "iphone", // optional
+    "model": "iPhone", // optional
     "version":" 12", // optional
-    "display_name": "Maes iPhone", // optional
+    "display_name": "Tim's iPhone", // optional
     "platform": "IOS" // optional
 }
 ```
@@ -123,12 +139,12 @@ Payload body:
 ```
 {
     "is_active": 1, // optional, use this key to define if a device active or not
-    "push_token": "kjnsdmnsdc0sdco23" // optional, when you have an FCM token for the device, use this key in the payload
+    "fcm_token": "kjnsdmnsdc0sdco23" // optional, when you have an FCM token for the device, use this key in the payload
 }
 ```
 
 This will add a new FCM device for a User.
-If you provide a `push_token` in the payload then the user will be able to receive push notifications.
+If you provide a `fcm_token` in the payload then the user will be able to receive push notifications.
 
 ## Sending Notifications
 
@@ -164,6 +180,13 @@ Then, add the following snippet to your notification class.
      */
     public function toFcm($notifiable)
     {
+
+        return (new FcmMessage)
+            ->title('Parcel Dispatched')
+            ->body('Your parcel has been dispatched');
+
+        // or like this
+
         return [
             'title' => config('app.name'), // Laravel App Name
             'body' => $title, // Body of the notification
@@ -172,7 +195,7 @@ Then, add the following snippet to your notification class.
     }
 ```
 
-### Try sending a notification
+### Send a Notification
 
 ```php
 $user->notify(new ParcelDispatchedNotification($order));
@@ -189,7 +212,7 @@ In your `User` model class, add the following snippet.
 ...
 class User {
 
-    use HasFCMDevices;
+    use HasFcmDevices;
 
     /**
      * Determines if the devices can be notified.
@@ -200,16 +223,16 @@ class User {
     {
         // $notification - Will return the type of Notification you are trying to send.
         // E.g. first send a notification which is using the `fcm_channel`
-        // $user->notify(new ParcelDispatchedNotification($order));
+        // $user->notify(new NewsLetterNotification($order));
         //
         // The canSendNotification method will be called before dispatching the fcm notifications and
         // perform a check in this method. If you return True, it will send. If you return False, it will not send.
         //
         // You can check the type of notification that is trying to send from the $notification variable.
-        // Using the above example. $notification = 'App\Notifications\ParcelDispatchedNotification'.
+        // Using the above example. $notification = 'App\Notifications\NewsLetterNotification'.
 
-        if ($notification  == 'App\Notifications\ParcelDispatchedNotification') {
-            return ($this->receives_notificiations == true); // example condition
+        if ($notification  == 'App\Notifications\NewsLetterNotification') {
+            return ($this->receives_news_letters == true); // example condition
         }
     	return true;
     }
@@ -234,58 +257,61 @@ class User extends Authenticatable
 
 ## Notification Object
 
-Here's the attributes you can assign to a `FCMNotification`.
+Here's the attributes you can assign to a `FcmMessage`.
 
 ```php
-$notification = new FCMNotification();
+$notification = new FcmMessage();
 
-$notification->setTitle('My Application');
-$notification->setBody('Hello World');
-$notification->setAndroidChannelId('1');
-$notification->setBadge(1);
-$notification->setClickAction('NOTIFICATION_CLICK');
-$notification->setSound('default');
-$notification->setIcon(''); // android only, set the name of your drawable resource as string
-$notification->setTag(''); // Identifier used to replace existing notifications in the notification drawer.
-$notification->setContentAvailable(''); // On Apple platforms, use this field to represent content-available in the APNs payload.
+$notification->title('My App'); // Title of the notification
+$notification->body('Hello, World!'); // Body of the notification
+$notification->image('https://example.com/image.jpg'); // Image URL
+$notification->badge(1); // Badge number
+$notification->sound('custom_sound'); // Sound to play (by default it will play the 'default' sound)
+$notification->data(['key' => 'value']); // Custom data
+$notification->withoutDefaultSound(); // Disable the default sound
+$notification->priorityHighest(); // Set the priority to 'high'
+$notification->priorityLowest(); // Set the priority to 'low'
 ```
 
 ## Relationships
 
-When your model is using the `HasFCMDevices` trait you can call the following methods.
+When your model is using the `HasFcmDevices` trait you can call the following methods.
 
 ```php
 <?php
 
 $user = User::first();
 
-$user->fcmDevices // Returns all the FCM Devices that the user owns
+$user->fcmDevices;// Returns all the FCM Devices that the user owns
 
 // send notification
 $fcmDevice = $user->fcmDevices->first(); 
-$notification = new FCMNotification(...);
-$fcmDevice->send($notification);
+$message = (new FcmMessage)
+                    ->title('My App')
+                    ->body('Hello, World!');
+$fcmDevice->sendFcmMessage($message);
+
+// or like this
+
+$fcmDevice->sendFcmMessage([
+    'title' => 'My App',
+    'body' => 'Hello, World!'
+]);
 ```
 
 ## Flutter Plugin
 
 Need to send notifications to a Flutter application?
 
-Check out the offical repository for that project [here](https://github.com/veskodigital/flutter-laravel-fcm).
+Check out the offical repository for that project [here](https://github.com/nylo-core/laravel-notify-fcm).
 
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
 
-## Testing
-
-``` bash
-$ composer test
-```
-
 ## Security
 
-If you discover any security related issues, please email hello@veskodigital.com instead of using the issue tracker.
+If you discover any security related issues, please email hello@Nylo.com instead of using the issue tracker.
 
 ## Contributing
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFcmUserDevicesTable extends Migration
+class CreateFcmDevicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateFcmUserDevicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('fcm_user_devices', function (Blueprint $table) {
+        Schema::create('fcm_devices', function (Blueprint $table) {
             $table->id();
             $table->text('uuid');
             $table->string('model')->nullable();
@@ -22,7 +22,7 @@ class CreateFcmUserDevicesTable extends Migration
             $table->string('version')->nullable();
             $table->integer('notifyable_id');
             $table->string('notifyable_type');
-            $table->text('push_token')->nullable();
+            $table->text('fcm_token')->nullable();
             $table->boolean('is_active')->default(1);
             $table->timestamps();
             $table->softDeletes();
@@ -36,6 +36,6 @@ class CreateFcmUserDevicesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fcm_user_devices');
+        Schema::dropIfExists('fcm_devices');
     }
 }
