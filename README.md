@@ -51,7 +51,7 @@ Then, ask if you want to run the migrations.
 Here are the tables it will migrate:
 * fcm_devices
 
-Add your Google Service Account to `firebase_service_account_json`.
+Add your Google Service Account to `config/firebase_service_account_json`.
 
 ```php
 <?php
@@ -76,7 +76,7 @@ You can download your Google Service Account in your Firebase Project Settings >
 Then, paste the JSON into the `firebase_service_account_json` file like in the above example.
 > **Note:** It's best to keep the key values in a `.env` file. Don't commit the JSON file to your repository.
 
-You can fully configure this package in the `config/laravelfcm.php` file (this file should be added after you run `php artisan laravelfcm:install`).
+You can configure this package in `config/laravelfcm.php`.
 
 ## Configuring your Model
 
@@ -101,9 +101,7 @@ class User extends Authenticatable
 
 This package uses [`laravel/sanctum`](https://laravel.com/docs/sanctum) as the default middleware for your model. 
 
-However, if you want authenticate using a different middleware, you can update the `config/laravelfcm.php` file key "middleware".
-
-The middleware is used when authenticating the user through the API endpoints this package creates.
+However, if you want authenticate using a different middleware, you can update the `middleware` key in your **config/laravelfcm.php** file.
 
 ## API Endpoints
 
@@ -113,7 +111,7 @@ Postman collection [example](laravel_fcm_channel.postman_collection.json)
 
 ---
 
-Store a device:
+<ins>Store a device</ins>
 
 The default endpoint: `/api/fcm/device`
 

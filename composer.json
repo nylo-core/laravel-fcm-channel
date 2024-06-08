@@ -1,11 +1,11 @@
 {
     "name": "nylo/laravel-fcm-channel",
-    "description": "Send notifications from Firebase cloud messenger from Laravel.",
+    "description": "Send Firebase Cloud Messenging (FCM) notifications from Laravel.",
     "type": "library",
     "keywords": [
         "Laravel FCM channel",
         "Laravel FCM",
-        "Firebase Cloud Messenger Laravel",
+        "Firebase Cloud Messenging Laravel",
         "FCM notifications",
         "Laravel notify",
         "Firebase",

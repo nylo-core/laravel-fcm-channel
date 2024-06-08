@@ -1,3 +1,8 @@
+## [1.0.3] - 2024-06-08
+
+* Update composer.json file
+* Add funding.yml file
+
 ## [1.0.2] - 2024-06-08
 
 * Update readme file
