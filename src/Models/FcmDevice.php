@@ -5,6 +5,11 @@ namespace Nylo\LaravelFCM\Models;
 use Illuminate\Database\Eloquent\Model;
 use Nylo\LaravelFCM\Jobs\FcmSendNotificationJob;
 
+/**
+ * Class FcmDevice
+ *
+ * @package Nylo\LaravelFCM\Models
+ */
 class FcmDevice extends Model
 {
 

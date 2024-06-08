@@ -2,6 +2,11 @@
 
 namespace Nylo\LaravelFCM\Models;
 
+/**
+ * Class FcmMessage
+ *
+ * @package Nylo\LaravelFCM\Models
+ */
 class FcmMessage {
 
     private $title;
@@ -44,7 +49,11 @@ class FcmMessage {
         }
 
         if (isset($message['priority'])) {
-            $fcmMessage->priority($message['priority']);
+            if ($message['priority'] == 'highest') {
+                $fcmMessage->priorityHighest();
+            } else if ($message['priority'] == 'lowest') {
+                $fcmMessage->priorityLowest();
+            }
         }
 
         if (isset($message['data'])) {
@@ -52,7 +61,7 @@ class FcmMessage {
         }
 
         if (isset($message['withoutDefaultSound'])) {
-            $fcmMessage->withoutDefaultSound($message['withoutDefaultSound']);
+            $fcmMessage->withoutDefaultSound();
         }
 
         return $fcmMessage;

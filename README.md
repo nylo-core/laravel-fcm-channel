@@ -8,9 +8,8 @@ Manage FCM notifications with ease using Laravel FCM Channel.
 
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage](#usage)    
+- [Usage](#usage)
 - [Changelog](#changelog)
-- [Testing](#testing)
 - [Security](#security)
 - [Contributing](#contributing)
 - [Credits](#credits)
@@ -18,7 +17,7 @@ Manage FCM notifications with ease using Laravel FCM Channel.
 
 This package has been built to make sending FCM messages easier. 
 
-There is also a Flutter [package](https://pub.dev/packages/laravel_fcm) you can use to save time for mobile development.
+There is also a Flutter [package](https://pub.dev/packages/laravel_notify_fcm) you can use to save time for mobile development.
 
 **Overview:**
 * Add multiple (FCM) devices to a model in Laravel
@@ -49,7 +48,7 @@ ServiceProvider to your app.php: `App\Providers\FcmAppServiceProvider::class`
 
 Then, ask if you want to run the migrations.
 
-Here's the tables it will migrate:
+Here are the tables it will migrate:
 * fcm_devices
 
 Add your Google Service Account to `firebase_service_account_json`.
@@ -110,7 +109,7 @@ The middleware is used when authenticating the user through the API endpoints th
 
 This package adds API endpoints to your router to allow your application to store devices.
 
-Postman collection [example](laravel_fcm_postman_collection.json)
+Postman collection [example](laravel_fcm_channel.postman_collection.json)
 
 ---
 
@@ -127,7 +126,7 @@ Add this header key: `X-DMeta`
 Value: 
 ```
 {
-    "uuid": "12992", // required, a uuid which should be from the device. The value must be persistented on the device.
+    "uuid": "12992", // required, a uuid which should be from the device.
     "model": "iPhone", // optional
     "version":" 12", // optional
     "display_name": "Tim's iPhone", // optional
@@ -138,7 +137,7 @@ Value:
 Payload body:
 ```
 {
-    "is_active": 1, // optional, use this key to define if a device active or not
+    "is_active": 1, // optional, use this key to define if a device is active or not
     "fcm_token": "kjnsdmnsdc0sdco23" // optional, when you have an FCM token for the device, use this key in the payload
 }
 ```
@@ -146,7 +145,9 @@ Payload body:
 This will add a new FCM device for a User.
 If you provide a `fcm_token` in the payload then the user will be able to receive push notifications.
 
-## Sending Notifications
+## Usage
+
+### Sending Notifications
 
 To send a notification using the FCMChannel, first create a Notification in your Laravel project.
 ```bash
@@ -238,7 +239,7 @@ class User {
 
 ## Notification Object
 
-Here's the attributes you can assign to a `FcmMessage`.
+Here are the attributes you can assign to a `FcmMessage`.
 
 ```php
 $notification = new FcmMessage();
@@ -284,15 +285,15 @@ $fcmDevice->sendFcmMessage([
 
 Need to send notifications to a Flutter application?
 
-Check out the offical repository for that project [here](https://github.com/nylo-core/laravel-notify-fcm).
+Check out the official repository for that project [here](https://github.com/nylo-core/laravel-notify-fcm).
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for recent changes.
 
 ## Security
 
-If you discover any security related issues, please email hello@Nylo.com instead of using the issue tracker.
+If you discover any security-related issues, please email hello@Nylo.com instead of using the issue tracker.
 
 ## Contributing
 
@@ -305,4 +306,4 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please view our [License File](LICENSE.md) for more information.

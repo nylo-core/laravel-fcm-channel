@@ -27,17 +27,14 @@
     ],
     "require": {
         "php": ">=7.2",
-        "guzzlehttp/guzzle": "*",
         "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x",
-        "kreait/firebase-php": "^7.11",
-        "nesbot/carbon": "^1.21|^2.0"
+        "kreait/firebase-php": "^7.12"
     },
     "require-dev": {
         "orchestra/testbench": "~3.8.0|^4.0",
         "phpunit/phpunit": "^8.0",
         "php": ">=7.2",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x",
-        "nesbot/carbon": "^1.21|^2.0"
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x"
     },
     "autoload": {
         "psr-4": {
@@ -64,5 +61,6 @@
                 "LaravelFCM": "Nylo\\LaravelFCM\\LaravelFCM"
             }
         }
-    }
+    },
+    "minimum-stability": "stable"
 }

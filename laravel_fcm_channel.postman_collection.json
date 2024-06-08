@@ -1,0 +1,90 @@
+{
+	"info": {
+		"_postman_id": "08ee8406-6e12-407f-be94-ec79b444fe3c",
+		"name": "Laravel FCM Package",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10721889"
+	},
+	"item": [
+		{
+			"name": "Update Devices",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SANCTUM_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-DMeta",
+						"value": "{\"model\":\"iphone\",\"version\":\" 12\",\"uuid\":\"12992\",\"display_name\":\"iPhone\",\"platform\":\"IOS\"}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"is_active\": 1,\n    \"fcm_token\": \"fcm token\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/fcm/device",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"fcm",
+						"device"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{FCMUserToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://yourdomain.com",
+			"type": "string"
+		}
+	]
+}
