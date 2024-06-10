@@ -1,3 +1,7 @@
+## [1.0.4] - 2024-06-10
+
+* Update Middleware
+
 ## [1.0.3] - 2024-06-08
 
 * Update composer.json file

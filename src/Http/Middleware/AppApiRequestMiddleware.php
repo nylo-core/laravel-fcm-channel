@@ -25,7 +25,7 @@ class AppApiRequestMiddleware
             abort(403);
         }
 
-        $deviceMeta = $request->header('X-DMeta');
+        $deviceMeta = $request->header('X-DMETA');
         if (!is_string($deviceMeta)) {
             Log::info("FCM middleware received a malformed X-DMeta header");
             abort(400);
@@ -34,7 +34,7 @@ class AppApiRequestMiddleware
         $dMeta = json_decode($deviceMeta, true);
 
         if (empty($dMeta)) {
-            Log::info("FCM middleware has empty X-DMeta data");
+            Log::info("FCM middleware has empty X-DMETA data");
             abort(400);
         }
 
