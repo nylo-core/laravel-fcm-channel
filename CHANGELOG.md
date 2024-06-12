@@ -1,3 +1,7 @@
+## [1.0.5] - 2024-06-12
+
+* Update push_token column in the fcm_devices table
+
 ## [1.0.4] - 2024-06-10
 
 * Update Middleware

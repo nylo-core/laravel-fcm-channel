@@ -45,7 +45,7 @@ class FcmDevice extends Model
      */
     public function scopeWithPushToken($query)
     {
-        return $query->whereNotNull('push_token')->where('push_token', '!=', '');
+        return $query->whereNotNull('fcm_token')->where('fcm_token', '!=', '');
     }
 
     /**
