@@ -172,10 +172,10 @@ After creating your notification, add a `fcm_channel` to the array below.
 Then, add the following snippet to your notification class.
 ```php
     /**
-     * Get the array representation of the notification.
+     * Get the fcm representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return array
+     * @return mixed
      */
     public function toFcm($notifiable)
     {
