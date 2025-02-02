@@ -5,8 +5,7 @@ namespace Nylo\LaravelFCM\Services;
 use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\FcmOptions;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
 /**
@@ -59,6 +58,10 @@ class FcmCloudMessagingService extends FirebaseService
         if (!empty($firebaseMessageArray['sound'])) {
             $apnsConfig = $apnsConfig->withSound($firebaseMessageArray['sound']);
             $androidConfig = $androidConfig->withSound($firebaseMessageArray['sound']);
+        } else {
+            if (empty($firebaseMessageArray['withoutDefaultSound'])) {
+                $message = $message->withDefaultSounds();
+            }
         }
 
         $message = $message->withApnsConfig(
@@ -81,10 +84,6 @@ class FcmCloudMessagingService extends FirebaseService
 
         if (!empty($firebaseMessageArray['data'])) {
             $message = $message->withData($firebaseMessageArray['data']);
-        }
-
-        if (empty($firebaseMessageArray['withoutDefaultSound'])) {
-            $message = $message->withDefaultSounds();
         }
 
         $fcmTokens = $appDevices->pluck('fcm_token')->toArray();

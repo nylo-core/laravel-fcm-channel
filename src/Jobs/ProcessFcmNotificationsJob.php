@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Exception;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
 class ProcessFcmNotificationsJob implements ShouldQueue

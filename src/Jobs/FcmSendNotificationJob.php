@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
 class FcmSendNotificationJob implements ShouldQueue
@@ -16,7 +16,6 @@ class FcmSendNotificationJob implements ShouldQueue
 
     public $notification;
     public $device;
-
     public $fcmCloudMessagingService;
 
     /**
