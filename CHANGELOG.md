@@ -1,3 +1,7 @@
+## [1.1.0] - 2025-02-02
+
+* Small tweaks and improvements
+
 ## [1.0.5] - 2024-06-12
 
 * Update push_token column in the fcm_devices table
