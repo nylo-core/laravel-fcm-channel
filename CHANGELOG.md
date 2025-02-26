@@ -1,3 +1,8 @@
+## [1.2.0] - 2025-02-26
+
+* Laravel 12 support
+* update readme file
+
 ## [1.1.1] - 2025-02-02
 
 * update readme file
