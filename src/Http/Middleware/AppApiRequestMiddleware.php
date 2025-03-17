@@ -40,11 +40,26 @@ class AppApiRequestMiddleware
 
         try {
             DB::transaction(function () use ($user, $dMeta, &$request) {
+                if ($request->has('fcm_token')) {
+                    $dMeta['fcm_token'] = $request->fcm_token;
+                }
+
+                if (!empty($dMeta['fcm_token'])) {
+                    $device = FcmDevice::where('fcm_token', $dMeta['fcm_token'])
+                                        ->where('notifyable_id', $user->id)
+                                        ->first();
+                    if (!empty($device)) {
+                        $request->request->add(['device' => $device]);
+                        return;
+                    }
+                }
+
                 // get device
                 $device = FcmDevice::firstOrCreate(
                     [
                         'uuid' => $dMeta['uuid'],
                         'notifyable_id' => $user->id,
+                        'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
                     ],
                     [
                         'uuid' => $dMeta['uuid'],

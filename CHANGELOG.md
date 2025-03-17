@@ -1,3 +1,7 @@
+## [1.3.0] - 2025-03-17
+
+* Fix logic in middleware
+
 ## [1.2.0] - 2025-02-26
 
 * Laravel 12 support
