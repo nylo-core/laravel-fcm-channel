@@ -63,4 +63,15 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             }
         });
     }
+
+    /**
+     * Handle a job failure.
+     *
+     * @param  \Exception  $exception
+     * @return void
+     */
+    public function failed($exception)
+    {
+        \Log::error('[ProcessFcmNotificationsJob] Job failed: ' . $exception->getMessage());
+    }
 }

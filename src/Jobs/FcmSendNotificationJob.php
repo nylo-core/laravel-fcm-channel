@@ -48,4 +48,15 @@ class FcmSendNotificationJob implements ShouldQueue
 
         $this->fcmCloudMessagingService->sendMessage($this->notification, $this->device);
     }
+
+    /**
+     * Handle a job failure.
+     *
+     * @param  \Exception  $exception
+     * @return void
+     */
+    public function failed($exception)
+    {
+        \Log::error('[FcmSendNotificationJob] Job failed: ' . $exception->getMessage());
+    }
 }
