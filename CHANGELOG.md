@@ -1,3 +1,7 @@
+## [1.4.0] - 2025-05-21
+
+* Add logging to jobs
+
 ## [1.3.0] - 2025-03-17
 
 * Fix logic in middleware
