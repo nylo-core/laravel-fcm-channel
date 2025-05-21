@@ -1,3 +1,7 @@
+## [1.4.1] - 2025-05-21
+
+* Composer.json update
+
 ## [1.4.0] - 2025-05-21
 
 * Add logging to jobs
