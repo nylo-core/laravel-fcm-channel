@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
+use Nylo\LaravelFCM\Services\FcmCloudMessagingService;
 
 class ProcessFcmNotificationsJob implements ShouldQueue
 {
@@ -18,8 +19,6 @@ class ProcessFcmNotificationsJob implements ShouldQueue
     public $notification;
 
     public $notifiable;
-
-    public $fcmCloudMessagingService;
 
     /**
      * Create a new job instance.
@@ -34,7 +33,6 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             $this->notification = $notification;
         }
         $this->notifiable = $notifiable;
-        $this->fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
     }
 
     /**
@@ -55,9 +53,11 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             return;
         }
 
-        $fcmDevices->chunk(500, function($devices) {
+        $fcmCloudMessagingService = app(FcmCloudMessagingService::class);
+
+        $fcmDevices->chunk(500, function($devices) use ($fcmCloudMessagingService) {
             try {
-                $this->fcmCloudMessagingService->sendMessages($this->notification, $devices);
+                $fcmCloudMessagingService->sendMessages($this->notification, $devices);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }
