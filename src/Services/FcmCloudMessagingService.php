@@ -5,6 +5,7 @@ namespace Nylo\LaravelFCM\Services;
 use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
@@ -90,11 +91,29 @@ class FcmCloudMessagingService extends FirebaseService
 
         $report = $messaging->sendMulticast($message, $fcmTokens);
 
+        // Deactivate invalid/unregistered tokens
+        $tokensToDeactivate = array_merge(
+            $report->unknownTokens(),  // UNREGISTERED - user uninstalled app
+            $report->invalidTokens()   // Invalid token format
+        );
+
+        $deactivatedCount = $this->deactivateInvalidTokens($tokensToDeactivate);
+
+        // Log failures for debugging
         if ($report->hasFailures()) {
             foreach ($report->failures()->getItems() as $failure) {
-                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
+                Log::warning('FCM multicast failure', [
+                    'token' => $failure->target()->value(),
+                    'error' => $failure->error()?->getMessage(),
+                ]);
             }
         }
+
+        Log::info('FCM multicast sent', [
+            'success_count' => $report->successes()->count(),
+            'failure_count' => $report->failures()->count(),
+            'tokens_deactivated' => $deactivatedCount,
+        ]);
     }
 
     /**
@@ -162,10 +181,39 @@ class FcmCloudMessagingService extends FirebaseService
 
         $report = $messaging->sendMulticast($message, $appDevice->fcm_token);
 
+        // Deactivate if token is invalid/unregistered
+        $tokensToDeactivate = array_merge(
+            $report->unknownTokens(),
+            $report->invalidTokens()
+        );
+
+        $this->deactivateInvalidTokens($tokensToDeactivate);
+
         if ($report->hasFailures()) {
             foreach ($report->failures()->getItems() as $failure) {
-                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
+                Log::warning('FCM send failure', [
+                    'token' => $failure->target()->value(),
+                    'error' => $failure->error()?->getMessage(),
+                ]);
             }
         }
+    }
+
+    /**
+     * Deactivate invalid or unregistered FCM tokens.
+     *
+     * @param array $tokens
+     * @return int
+     */
+    public function deactivateInvalidTokens(array $tokens): int
+    {
+        if (empty($tokens)) {
+            return 0;
+        }
+
+        return DB::table('fcm_devices')
+            ->whereIn('fcm_token', $tokens)
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
     }
 }

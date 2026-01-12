@@ -1,3 +1,8 @@
+## [1.5.0] - 2026-01-12
+
+* Fix Closure serialization error in queued FCM jobs
+* Auto-deactivate invalid/unregistered FCM tokens
+
 ## [1.4.1] - 2025-05-21
 
 * Composer.json update

@@ -19,8 +19,6 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 
     public $notifiable;
 
-    public $fcmCloudMessagingService;
-
     /**
      * Create a new job instance.
      *
@@ -34,7 +32,6 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             $this->notification = $notification;
         }
         $this->notifiable = $notifiable;
-        $this->fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
     }
 
     /**
@@ -55,9 +52,11 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             return;
         }
 
-        $fcmDevices->chunk(500, function($devices) {
+        $fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
+
+        $fcmDevices->chunk(500, function($devices) use ($fcmCloudMessagingService) {
             try {
-                $this->fcmCloudMessagingService->sendMessages($this->notification, $devices);
+                $fcmCloudMessagingService->sendMessages($this->notification, $devices);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }

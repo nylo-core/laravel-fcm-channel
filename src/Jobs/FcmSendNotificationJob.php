@@ -16,7 +16,6 @@ class FcmSendNotificationJob implements ShouldQueue
 
     public $notification;
     public $device;
-    public $fcmCloudMessagingService;
 
     /**
      * Create a new job instance.
@@ -27,7 +26,6 @@ class FcmSendNotificationJob implements ShouldQueue
     {
         $this->notification = $notification;
         $this->device = $device;
-        $this->fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
     }
 
     /**
@@ -46,7 +44,8 @@ class FcmSendNotificationJob implements ShouldQueue
             return;
         }
 
-        $this->fcmCloudMessagingService->sendMessage($this->notification, $this->device);
+        $fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
+        $fcmCloudMessagingService->sendMessage($this->notification, $this->device);
     }
 
     /**
