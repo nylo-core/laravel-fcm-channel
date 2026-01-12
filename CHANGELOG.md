@@ -1,3 +1,7 @@
+## [1.5.1] - 2026-01-12
+
+* Update .gitignore to include CLAUDE.md
+
 ## [1.5.0] - 2026-01-12
 
 * Fix Closure serialization error in queued FCM jobs
