@@ -1,3 +1,7 @@
+## [1.6.1] - 2026-01-12
+
+* Fix null FCM token error in FcmSendNotificationJob
+
 ## [1.6.0] - 2026-01-12
 
 * Fix sendMessage() bug - now correctly passes array to sendMulticast

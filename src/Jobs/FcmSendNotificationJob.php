@@ -46,6 +46,14 @@ class FcmSendNotificationJob implements ShouldQueue
             return;
         }
 
+        if (empty($this->device->fcm_token)) {
+            Log::warning('Laravel FCM Channel: Device has no FCM token', [
+                'device_id' => $this->device->id ?? null,
+            ]);
+
+            return;
+        }
+
         $fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
         $fcmCloudMessagingService->sendMessage($this->notification, $this->device);
     }
