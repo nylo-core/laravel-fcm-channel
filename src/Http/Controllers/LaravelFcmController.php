@@ -2,7 +2,6 @@
 
 namespace Nylo\LaravelFCM\Http\Controllers;
 
-use Nylo\LaravelFCM\Http\Controllers\Controller;
 use Nylo\LaravelFCM\Http\Requests\FcmUpdateRequest;
 
 class LaravelFcmController extends Controller
@@ -10,7 +9,6 @@ class LaravelFcmController extends Controller
     /**
      * Update a FcmDevice
      *
-     * @param FcmUpdateRequest $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -28,6 +26,7 @@ class LaravelFcmController extends Controller
         abort_if(empty($updatePayload), 400);
 
         $didUpdate = $request->device->update($updatePayload);
+
         return response()->json(['status' => $didUpdate ? 200 : 500]);
     }
 }

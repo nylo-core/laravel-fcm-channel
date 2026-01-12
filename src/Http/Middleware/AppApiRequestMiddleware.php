@@ -13,28 +13,26 @@ class AppApiRequestMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
         if (empty($user)) {
-            Log::info("FCM middleware did not receive an authenticated user");
+            Log::info('FCM middleware did not receive an authenticated user');
             abort(403);
         }
 
         $deviceMeta = $request->header('X-DMETA');
-        if (!is_string($deviceMeta)) {
-            Log::info("FCM middleware received a malformed X-DMeta header");
+        if (! is_string($deviceMeta)) {
+            Log::info('FCM middleware received a malformed X-DMeta header');
             abort(400);
         }
 
         $dMeta = json_decode($deviceMeta, true);
 
         if (empty($dMeta)) {
-            Log::info("FCM middleware has empty X-DMETA data");
+            Log::info('FCM middleware has empty X-DMETA data');
             abort(400);
         }
 
@@ -44,12 +42,13 @@ class AppApiRequestMiddleware
                     $dMeta['fcm_token'] = $request->fcm_token;
                 }
 
-                if (!empty($dMeta['fcm_token'])) {
+                if (! empty($dMeta['fcm_token'])) {
                     $device = FcmDevice::where('fcm_token', $dMeta['fcm_token'])
-                                        ->where('notifyable_id', $user->id)
-                                        ->first();
-                    if (!empty($device)) {
+                        ->where('notifyable_id', $user->id)
+                        ->first();
+                    if (! empty($device)) {
                         $request->request->add(['device' => $device]);
+
                         return;
                     }
                 }
@@ -69,7 +68,7 @@ class AppApiRequestMiddleware
                         'version' => $dMeta['version'],
                         'notifyable_id' => $user->id,
                         'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
-                        'is_active' => 1
+                        'is_active' => 1,
                     ]
                 );
 

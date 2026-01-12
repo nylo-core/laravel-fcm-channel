@@ -2,15 +2,14 @@
 
 namespace Nylo\LaravelFCM\Jobs;
 
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
-use Nylo\LaravelFCM\Services\FcmCloudMessagingService;
 
 class ProcessFcmNotificationsJob implements ShouldQueue
 {
@@ -27,7 +26,7 @@ class ProcessFcmNotificationsJob implements ShouldQueue
      */
     public function __construct($notification, $notifiable)
     {
-        if (!($notification instanceof FcmMessage)) {
+        if (! ($notification instanceof FcmMessage)) {
             $this->notification = FcmMessage::createFromArray($notification);
         } else {
             $this->notification = $notification;
@@ -44,6 +43,7 @@ class ProcessFcmNotificationsJob implements ShouldQueue
     {
         if (empty(config('firebase_service_account_json'))) {
             Log::error('Laravel FCM Channel: Firebase service account json is not set');
+
             return;
         }
 
@@ -55,7 +55,7 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 
         $fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
 
-        $fcmDevices->chunk(500, function($devices) use ($fcmCloudMessagingService) {
+        $fcmDevices->chunk(500, function ($devices) use ($fcmCloudMessagingService) {
             try {
                 $fcmCloudMessagingService->sendMessages($this->notification, $devices);
             } catch (Exception $e) {
@@ -72,6 +72,6 @@ class ProcessFcmNotificationsJob implements ShouldQueue
      */
     public function failed($exception)
     {
-        \Log::error('[ProcessFcmNotificationsJob] Job failed: ' . $exception->getMessage());
+        \Log::error('[ProcessFcmNotificationsJob] Job failed: '.$exception->getMessage());
     }
 }

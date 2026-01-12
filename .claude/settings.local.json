@@ -4,7 +4,8 @@
       "Bash(grep:*)",
       "Bash(composer test:*)",
       "Bash(./vendor/bin/phpunit:*)",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "Bash(composer update:*)"
     ]
   }
 }

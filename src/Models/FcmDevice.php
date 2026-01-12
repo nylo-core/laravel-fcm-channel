@@ -8,12 +8,9 @@ use Nylo\LaravelFCM\Jobs\FcmSendNotificationJob;
 
 /**
  * Class FcmDevice
- *
- * @package Nylo\LaravelFCM\Models
  */
 class FcmDevice extends Model
 {
-
     use SoftDeletes;
 
     /**
@@ -37,7 +34,7 @@ class FcmDevice extends Model
         'notifyable_id',
         'notifyable_type',
         'fcm_token',
-        'is_active'
+        'is_active',
     ];
 
     /**
@@ -78,7 +75,7 @@ class FcmDevice extends Model
      */
     public function sendFcmMessage($message)
     {
-        if (!($message instanceof FcmMessage)) {
+        if (! ($message instanceof FcmMessage)) {
             $message = FcmMessage::createFromArray($message);
         }
         FcmSendNotificationJob::dispatch($message, $this);

@@ -8,7 +8,7 @@ use Nylo\LaravelFCM\Models\FcmMessage;
 
 trait HasFcmDevices
 {
-	/**
+    /**
      * Get the fcm devices.
      */
     public function fcmDevices()
@@ -18,12 +18,10 @@ trait HasFcmDevices
 
     /**
      * Determines if the devices can be notified.
-     *
-     * @return bool
      */
-    public function canSendNotification($notification) : bool
+    public function canSendNotification($notification): bool
     {
-    	return true;
+        return true;
     }
 
     /**
@@ -31,11 +29,10 @@ trait HasFcmDevices
      *
      * @param  \Nylo\LaravelFCM\Models\FcmMessage|array  $message
      * @return void
-
      */
     public function sendFcmMessage($message)
     {
-        if (!($message instanceof FcmMessage)) {
+        if (! ($message instanceof FcmMessage)) {
             $message = FcmMessage::createFromArray($message);
         }
         ProcessFcmNotificationsJob::dispatch($message, $this);

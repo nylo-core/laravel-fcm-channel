@@ -8,11 +8,9 @@ use Kreait\Firebase\Factory;
  * Class FirebaseService
  *
  * @property Factory $factory
- *
- * @package Nylo\LaravelFCM\Services
  */
- class FirebaseService
- {
+class FirebaseService
+{
     public function __construct()
     {
         $this->factory = (new Factory)->withServiceAccount(json_decode(config('firebase_service_account_json'), true));
@@ -27,4 +25,4 @@ use Kreait\Firebase\Factory;
     {
         return $this->factory;
     }
- }
+}

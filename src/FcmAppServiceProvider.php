@@ -2,14 +2,13 @@
 
 namespace Nylo\LaravelFCM;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 use Nylo\LaravelFCM\Channels\FCMChannel;
 
 class FcmAppServiceProvider extends ServiceProvider
 {
-
     /**
      * Bootstrap any application services.
      *
@@ -21,7 +20,7 @@ class FcmAppServiceProvider extends ServiceProvider
         $this->registerMigrations();
 
         Notification::extend('fcm_channel', function ($app) {
-            return new FCMChannel();
+            return new FCMChannel;
         });
     }
 
@@ -36,7 +35,7 @@ class FcmAppServiceProvider extends ServiceProvider
         $this->registerCommands();
     }
 
-     /**
+    /**
      * Setup the resource publishing groups for FCM Laravel.
      *
      * @return void
@@ -84,7 +83,7 @@ class FcmAppServiceProvider extends ServiceProvider
         });
     }
 
-     /**
+    /**
      * Register the FCM Laravel Artisan commands.
      *
      * @return void
@@ -93,7 +92,7 @@ class FcmAppServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Console\InstallCommand::class
+                Console\InstallCommand::class,
             ]);
         }
     }

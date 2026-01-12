@@ -15,6 +15,7 @@ class FcmSendNotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $notification;
+
     public $device;
 
     /**
@@ -37,6 +38,7 @@ class FcmSendNotificationJob implements ShouldQueue
     {
         if (empty(config('firebase_service_account_json'))) {
             Log::error('Laravel FCM Channel: Firebase service account json is not set');
+
             return;
         }
 
@@ -56,6 +58,6 @@ class FcmSendNotificationJob implements ShouldQueue
      */
     public function failed($exception)
     {
-        \Log::error('[FcmSendNotificationJob] Job failed: ' . $exception->getMessage());
+        \Log::error('[FcmSendNotificationJob] Job failed: '.$exception->getMessage());
     }
 }

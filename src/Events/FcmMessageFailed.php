@@ -8,8 +8,5 @@ final class FcmMessageFailed
 {
     use Dispatchable;
 
-    public function __construct(public string $token, public string $errorMessage)
-    {
-        
-    }
+    public function __construct(public string $token, public string $errorMessage) {}
 }

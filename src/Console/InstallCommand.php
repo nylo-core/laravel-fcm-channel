@@ -2,10 +2,10 @@
 
 namespace Nylo\LaravelFCM\Console;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use Nylo\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Nylo\LaravelFCM\Console\Traits\DetectsApplicationNamespace;
 
 class InstallCommand extends Command
 {
@@ -43,23 +43,24 @@ class InstallCommand extends Command
         $this->info('Laravel FCM scaffolding installed successfully.');
 
         $arrTablesMissing = [];
-        if (!Schema::hasTable('fcm_user_devices')) {
+        if (! Schema::hasTable('fcm_user_devices')) {
             $arrTablesMissing[] = 'fcm_user_devices';
         }
 
-        if (!Schema::hasTable('fcm_api_app_requests')) {
+        if (! Schema::hasTable('fcm_api_app_requests')) {
             $arrTablesMissing[] = 'fcm_api_app_requests';
         }
 
-        if (!empty($arrTablesMissing)) {
-            $this->comment('You are missing the tables ' . implode(",", $arrTablesMissing) . ' for Laravel FCM to work...');
+        if (! empty($arrTablesMissing)) {
+            $this->comment('You are missing the tables '.implode(',', $arrTablesMissing).' for Laravel FCM to work...');
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
                 $this->comment('Running Laravel FCM migration...');
                 $this->call('migrate', ['--path' => 'vendor/nylo/laravel-fcm-channel/src/database/migrations']);
 
-                $this->info("Laravel FCM is installed 🎉");
+                $this->info('Laravel FCM is installed 🎉');
             }
+
             return;
         }
     }

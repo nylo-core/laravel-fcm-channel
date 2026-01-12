@@ -2,8 +2,6 @@
 
 namespace Nylo\LaravelFCM;
 
-use Nylo\LaravelFCM\FcmAppServiceProvider;
-
 class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
 {
     /**
@@ -11,18 +9,12 @@ class LaravelFcmApplicationServiceProvider extends FcmAppServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-
-    }
+    public function boot() {}
 
     /**
      * Register any application services.
      *
      * @return void
      */
-    public function register()
-    {
-
-    }
+    public function register() {}
 }

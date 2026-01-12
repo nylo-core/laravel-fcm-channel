@@ -2,17 +2,16 @@
 
 namespace Nylo\LaravelFCM\Services;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Nylo\LaravelFCM\Models\FcmMessage;
 use Nylo\LaravelFCM\Events\FcmMessageFailed;
+use Nylo\LaravelFCM\Models\FcmMessage;
+
 /**
  * Class FcmCloudMessagingService
- *
- * @package Nylo\LaravelFCM\Services
  */
 class FcmCloudMessagingService extends FirebaseService
 {
@@ -24,71 +23,15 @@ class FcmCloudMessagingService extends FirebaseService
     /**
      * Send a message to app devices
      *
-     * @param FcmMessage $notificationMessage
-     * @param $appDevices
      *
      * @return void
      */
     public function sendMessages(FcmMessage $notificationMessage, $appDevices)
     {
         $messaging = $this->getFactory()->createMessaging();
-        $firebaseMessageArray = $notificationMessage->toArray();
-
-        $notificationArray = [];
-
-        $notificationArray['title'] = empty($firebaseMessageArray['title']) ? config('app.name') : $firebaseMessageArray['title'];
-
-        if (!empty($firebaseMessageArray['body'])) {
-            $notificationArray['body'] = $firebaseMessageArray['body'];
-        }
-
-        if (!empty($firebaseMessageArray['image'])) {
-            $notificationArray['image'] = $firebaseMessageArray['image'];
-        }
-
-        $message = CloudMessage::new();
-        $message = $message->withNotification($notificationArray);
-
-        $apnsConfig = ApnsConfig::new();
-        $androidConfig = AndroidConfig::new();
-
-        if (!empty($firebaseMessageArray['badge'])) {
-            $apnsConfig = $apnsConfig->withBadge($firebaseMessageArray['badge']);
-        }
-
-        if (!empty($firebaseMessageArray['sound'])) {
-            $apnsConfig = $apnsConfig->withSound($firebaseMessageArray['sound']);
-            $androidConfig = $androidConfig->withSound($firebaseMessageArray['sound']);
-        } else {
-            if (empty($firebaseMessageArray['withoutDefaultSound'])) {
-                $message = $message->withDefaultSounds();
-            }
-        }
-
-        $message = $message->withApnsConfig(
-            $apnsConfig
-        );
-
-        $message = $message->withAndroidConfig(
-            $androidConfig
-        );
-
-        if (!empty($firebaseMessageArray['priority'])) {
-            if ($firebaseMessageArray['priority'] == 'highest') {
-                $message = $message->withHighestPossiblePriority();
-            }
-
-            if ($firebaseMessageArray['priority'] == 'lowest') {
-                $message = $message->withLowestPossiblePriority();
-            }
-        }
-
-        if (!empty($firebaseMessageArray['data'])) {
-            $message = $message->withData($firebaseMessageArray['data']);
-        }
+        $message = $this->buildCloudMessage($notificationMessage);
 
         $fcmTokens = $appDevices->pluck('fcm_token')->toArray();
-
         $report = $messaging->sendMulticast($message, $fcmTokens);
 
         // Deactivate invalid/unregistered tokens
@@ -99,21 +42,7 @@ class FcmCloudMessagingService extends FirebaseService
 
         $deactivatedCount = $this->deactivateInvalidTokens($tokensToDeactivate);
 
-        // Log failures for debugging
-        if ($report->hasFailures()) {
-            foreach ($report->failures()->getItems() as $failure) {
-                Log::warning('FCM multicast failure', [
-                    'token' => $failure->target()->value(),
-                    'error' => $failure->error()?->getMessage(),
-                ]);
-                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
-
-                event(new FcmMessageFailed(
-                    $failure->target()->value(),
-                    $failure->error()->getMessage()
-                ));
-            }
-        }
+        $this->handleFailures($report);
 
         Log::info('FCM multicast sent', [
             'success_count' => $report->successes()->count(),
@@ -125,67 +54,15 @@ class FcmCloudMessagingService extends FirebaseService
     /**
      * Send a message to app device
      *
-     * @param FcmMessage $notificationMessage
-     * @param $appDevice
      *
      * @return void
      */
     public function sendMessage(FcmMessage $notificationMessage, $appDevice)
     {
         $messaging = $this->getFactory()->createMessaging();
-        $firebaseMessageArray = $notificationMessage->toArray();
+        $message = $this->buildCloudMessage($notificationMessage);
 
-        $notificationArray = [];
-
-        $notificationArray['title'] = empty($firebaseMessageArray['title']) ? config('app.name') : $firebaseMessageArray['title'];
-
-        if (!empty($firebaseMessageArray['body'])) {
-            $notificationArray['body'] = $firebaseMessageArray['body'];
-        }
-
-        if (!empty($firebaseMessageArray['image'])) {
-            $notificationArray['image'] = $firebaseMessageArray['image'];
-        }
-
-        $message = CloudMessage::new();
-        $message = $message->withNotification($notificationArray);
-
-        $apnsConfig = ApnsConfig::new();
-        $androidConfig = AndroidConfig::new();
-
-        if (!empty($firebaseMessageArray['badge'])) {
-            $apnsConfig = $apnsConfig->withBadge($firebaseMessageArray['badge']);
-        }
-
-        if (!empty($firebaseMessageArray['sound'])) {
-            $apnsConfig = $apnsConfig->withSound($firebaseMessageArray['sound']);
-            $androidConfig = $androidConfig->withSound($firebaseMessageArray['sound']);
-        }
-
-        $message = $message->withApnsConfig(
-            $apnsConfig
-        );
-
-        $message = $message->withAndroidConfig(
-            $androidConfig
-        );
-
-        $message = $message->withDefaultSounds();
-        if (!empty($firebaseMessageArray['priority'])) {
-            if ($firebaseMessageArray['priority'] == 'highest') {
-                $message = $message->withHighestPossiblePriority();
-            }
-
-            if ($firebaseMessageArray['priority'] == 'lowest') {
-                $message = $message->withLowestPossiblePriority();
-            }
-        }
-
-        if (!empty($firebaseMessageArray['data'])) {
-            $message = $message->withData($firebaseMessageArray['data']);
-        }
-
-        $report = $messaging->sendMulticast($message, $appDevice->fcm_token);
+        $report = $messaging->sendMulticast($message, [$appDevice->fcm_token]);
 
         // Deactivate if token is invalid/unregistered
         $tokensToDeactivate = array_merge(
@@ -194,28 +71,88 @@ class FcmCloudMessagingService extends FirebaseService
         );
 
         $this->deactivateInvalidTokens($tokensToDeactivate);
+        $this->handleFailures($report);
+    }
 
-        if ($report->hasFailures()) {
-            foreach ($report->failures()->getItems() as $failure) {
-                Log::warning('FCM send failure', [
-                    'token' => $failure->target()->value(),
-                    'error' => $failure->error()?->getMessage(),
-                ]);
-                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
+    /**
+     * Build a CloudMessage from an FcmMessage.
+     */
+    private function buildCloudMessage(FcmMessage $notificationMessage): CloudMessage
+    {
+        $firebaseMessageArray = $notificationMessage->toArray();
 
-                event(new FcmMessageFailed(
-                    $failure->target()->value(),
-                    $failure->error()->getMessage()
-                ));
+        $notificationArray = [];
+        $notificationArray['title'] = empty($firebaseMessageArray['title'])
+            ? config('app.name')
+            : $firebaseMessageArray['title'];
+
+        if (! empty($firebaseMessageArray['body'])) {
+            $notificationArray['body'] = $firebaseMessageArray['body'];
+        }
+
+        if (! empty($firebaseMessageArray['image'])) {
+            $notificationArray['image'] = $firebaseMessageArray['image'];
+        }
+
+        $message = CloudMessage::new()->withNotification($notificationArray);
+
+        $apnsConfig = ApnsConfig::new();
+        $androidConfig = AndroidConfig::new();
+
+        if (! empty($firebaseMessageArray['badge'])) {
+            $apnsConfig = $apnsConfig->withBadge($firebaseMessageArray['badge']);
+        }
+
+        if (! empty($firebaseMessageArray['sound'])) {
+            $apnsConfig = $apnsConfig->withSound($firebaseMessageArray['sound']);
+            $androidConfig = $androidConfig->withSound($firebaseMessageArray['sound']);
+        } elseif (empty($firebaseMessageArray['withoutDefaultSound'])) {
+            $message = $message->withDefaultSounds();
+        }
+
+        $message = $message
+            ->withApnsConfig($apnsConfig)
+            ->withAndroidConfig($androidConfig);
+
+        if (! empty($firebaseMessageArray['priority'])) {
+            if ($firebaseMessageArray['priority'] === 'highest') {
+                $message = $message->withHighestPossiblePriority();
+            } elseif ($firebaseMessageArray['priority'] === 'lowest') {
+                $message = $message->withLowestPossiblePriority();
             }
+        }
+
+        if (! empty($firebaseMessageArray['data'])) {
+            $message = $message->withData($firebaseMessageArray['data']);
+        }
+
+        return $message;
+    }
+
+    /**
+     * Handle failures from a multicast report.
+     */
+    private function handleFailures($report): void
+    {
+        if (! $report->hasFailures()) {
+            return;
+        }
+
+        foreach ($report->failures()->getItems() as $failure) {
+            Log::warning('FCM send failure', [
+                'token' => $failure->target()->value(),
+                'error' => $failure->error()?->getMessage(),
+            ]);
+
+            event(new FcmMessageFailed(
+                $failure->target()->value(),
+                $failure->error()->getMessage()
+            ));
         }
     }
 
     /**
      * Deactivate invalid or unregistered FCM tokens.
-     *
-     * @param array $tokens
-     * @return int
      */
     public function deactivateInvalidTokens(array $tokens): int
     {

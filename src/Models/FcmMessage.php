@@ -4,29 +4,33 @@ namespace Nylo\LaravelFCM\Models;
 
 /**
  * Class FcmMessage
- *
- * @package Nylo\LaravelFCM\Models
  */
-class FcmMessage {
-
+class FcmMessage
+{
     private $title;
+
     private $body;
+
     private $image;
+
     private $badge;
+
     private $sound;
+
     private $priority;
+
     private $data = [];
+
     private $withoutDefaultSound;
 
     /**
      * Create a new FcmMessage instance from an array.
      *
-     * @param $message
      * @return FcmMessage
      */
-    static function createFromArray($message)
+    public static function createFromArray($message)
     {
-        $fcmMessage = new FcmMessage();
+        $fcmMessage = new FcmMessage;
 
         if (isset($message['title'])) {
             $fcmMessage->title($message['title']);
@@ -51,7 +55,7 @@ class FcmMessage {
         if (isset($message['priority'])) {
             if ($message['priority'] == 'highest') {
                 $fcmMessage->priorityHighest();
-            } else if ($message['priority'] == 'lowest') {
+            } elseif ($message['priority'] == 'lowest') {
                 $fcmMessage->priorityLowest();
             }
         }
@@ -70,8 +74,7 @@ class FcmMessage {
     /**
      * Set the title of the message.
      *
-     * @param string $title
-     *
+     * @param  string  $title
      * @return $this
      */
     public function title($title)
@@ -84,8 +87,7 @@ class FcmMessage {
     /**
      * Set the body of the message.
      *
-     * @param string $body
-     *
+     * @param  string  $body
      * @return $this
      */
     public function body($body)
@@ -98,8 +100,7 @@ class FcmMessage {
     /**
      * Set the image of the message.
      *
-     * @param string $image
-     *
+     * @param  string  $image
      * @return $this
      */
     public function image($image)
@@ -112,8 +113,7 @@ class FcmMessage {
     /**
      * Set the badge of the message.
      *
-     * @param int $badge
-     *
+     * @param  int  $badge
      * @return $this
      */
     public function badge($badge)
@@ -126,8 +126,7 @@ class FcmMessage {
     /**
      * Set the sound of the message.
      *
-     * @param string $sound
-     *
+     * @param  string  $sound
      * @return $this
      */
     public function sound($sound)
@@ -140,8 +139,7 @@ class FcmMessage {
     /**
      * Set the data of the message.
      *
-     * @param array $data
-     *
+     * @param  array  $data
      * @return $this
      */
     public function data($data)
@@ -196,35 +194,35 @@ class FcmMessage {
     {
         $message = [];
 
-        if (!empty($this->title)) {
+        if (! empty($this->title)) {
             $message['title'] = $this->title;
         }
 
-        if (!empty($this->body)) {
+        if (! empty($this->body)) {
             $message['body'] = $this->body;
         }
 
-        if (!empty($this->image)) {
+        if (! empty($this->image)) {
             $message['image'] = $this->image;
         }
 
-        if (!empty($this->badge)) {
+        if (! empty($this->badge)) {
             $message['badge'] = $this->badge;
         }
 
-        if (!empty($this->sound)) {
+        if (! empty($this->sound)) {
             $message['sound'] = $this->sound;
         }
 
-        if (!empty($this->priority)) {
+        if (! empty($this->priority)) {
             $message['priority'] = $this->priority;
         }
 
-        if (!empty($this->data)) {
+        if (! empty($this->data)) {
             $message['data'] = $this->data;
         }
 
-        if (!empty($this->withoutDefaultSound)) {
+        if (! empty($this->withoutDefaultSound)) {
             $message['withoutDefaultSound'] = $this->withoutDefaultSound;
         }
 

@@ -1,3 +1,12 @@
+## [1.6.0] - 2026-01-12
+
+* Fix sendMessage() bug - now correctly passes array to sendMulticast
+* Add device authorization check in FcmUpdateRequest
+* Refactor FcmCloudMessagingService - extract buildCloudMessage() and handleFailures() methods
+* Add complete test suite (36 tests)
+* Update dev dependencies (orchestra/testbench, phpunit) for PHP 8+ compatibility
+* Add CLAUDE.md documentation
+
 ## [1.5.1] - 2026-01-12
 
 * Update .gitignore to include CLAUDE.md

@@ -14,7 +14,11 @@ class FcmUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::check();
+        $device = $this->get('device');
+
+        return Auth::check() &&
+               $device &&
+               $device->notifyable_id === Auth::id();
     }
 
     /**
@@ -26,7 +30,7 @@ class FcmUpdateRequest extends FormRequest
     {
         return [
             'is_active' => 'nullable|boolean',
-            'fcm_token' => 'nullable|string'
+            'fcm_token' => 'nullable|string',
         ];
     }
 }
