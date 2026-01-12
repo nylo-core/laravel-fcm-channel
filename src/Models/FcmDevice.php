@@ -3,6 +3,7 @@
 namespace Nylo\LaravelFCM\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Nylo\LaravelFCM\Jobs\FcmSendNotificationJob;
 
 /**
@@ -12,6 +13,8 @@ use Nylo\LaravelFCM\Jobs\FcmSendNotificationJob;
  */
 class FcmDevice extends Model
 {
+
+    use SoftDeletes;
 
     /**
      * The table associated with the model.

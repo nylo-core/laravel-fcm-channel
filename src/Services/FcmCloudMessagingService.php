@@ -8,7 +8,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
-
+use Nylo\LaravelFCM\Events\FcmMessageFailed;
 /**
  * Class FcmCloudMessagingService
  *
@@ -106,6 +106,12 @@ class FcmCloudMessagingService extends FirebaseService
                     'token' => $failure->target()->value(),
                     'error' => $failure->error()?->getMessage(),
                 ]);
+                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
+
+                event(new FcmMessageFailed(
+                    $failure->target()->value(),
+                    $failure->error()->getMessage()
+                ));
             }
         }
 
@@ -195,6 +201,12 @@ class FcmCloudMessagingService extends FirebaseService
                     'token' => $failure->target()->value(),
                     'error' => $failure->error()?->getMessage(),
                 ]);
+                Log::error('Laravel FCM Channel: ' . $failure->error()->getMessage());
+
+                event(new FcmMessageFailed(
+                    $failure->target()->value(),
+                    $failure->error()->getMessage()
+                ));
             }
         }
     }

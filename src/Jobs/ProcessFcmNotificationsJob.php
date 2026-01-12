@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Nylo\LaravelFCM\Models\FcmMessage;
+use Nylo\LaravelFCM\Services\FcmCloudMessagingService;
 
 class ProcessFcmNotificationsJob implements ShouldQueue
 {
