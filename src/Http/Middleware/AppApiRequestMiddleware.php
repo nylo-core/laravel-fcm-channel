@@ -12,10 +12,8 @@ class AppApiRequestMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $user = $request->user();
         if (empty($user)) {
@@ -77,7 +75,7 @@ class AppApiRequestMiddleware
 
             return $next($request);
         } catch (\Throwable $e) {
-            Log::error(json_encode($e));
+            Log::error('FCM middleware error: '.$e->getMessage(), ['exception' => $e]);
             abort(400);
         }
     }

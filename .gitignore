@@ -3,3 +3,5 @@ composer.lock
 docs
 vendor
 CLAUDE.md
+.claude
+.phpunit.cache

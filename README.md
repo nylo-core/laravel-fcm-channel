@@ -279,6 +279,38 @@ $fcmDevice->sendFcmMessage([
 ]);
 ```
 
+## Broadcasting to Many Tokens
+
+`$user->notify(...)` and `Notification::send($users, ...)` both work, but they
+dispatch one job per notifiable. When you want to push the same `FcmMessage`
+to many tokens at once — e.g. an admin broadcast, a list of tokens collected
+from elsewhere, or every active device across a set of users — use the
+broadcast helpers on `FcmMessage`. They pool everything into a single queued
+multicast job that chunks into batches of 500 under the hood.
+
+```php
+use Nylo\LaravelFCM\Models\FcmMessage;
+
+$message = (new FcmMessage)
+    ->title('App-wide announcement')
+    ->body('New version available!');
+
+// Send to an arbitrary list of FCM tokens.
+$message->sendToTokens([
+    'fcm-token-1',
+    'fcm-token-2',
+    // ...
+]);
+
+// Or send to every active device across a collection of notifiables,
+// pooled into a single multicast job.
+$message->sendToNotifiables(User::where('is_admin', true)->get());
+```
+
+Tokens are de-duplicated and empty values are stripped. Invalid or
+unregistered tokens are auto-deactivated in the `fcm_devices` table when
+they exist there — same behaviour as the per-user notification path.
+
 ## Flutter Plugin
 
 Need to send notifications to a Flutter application?

@@ -20,12 +20,15 @@ class CreateFcmDevicesTable extends Migration
             $table->string('display_name')->nullable();
             $table->string('platform')->nullable();
             $table->string('version')->nullable();
-            $table->integer('notifyable_id');
+            $table->unsignedBigInteger('notifyable_id');
             $table->string('notifyable_type');
             $table->text('fcm_token')->nullable();
             $table->boolean('is_active')->default(1);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['notifyable_id', 'notifyable_type']);
+            $table->index('is_active');
         });
     }
 

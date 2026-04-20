@@ -2,33 +2,33 @@
 
 namespace Nylo\LaravelFCM\Models;
 
+use Nylo\LaravelFCM\Jobs\FcmSendToTokensJob;
+
 /**
  * Class FcmMessage
  */
 class FcmMessage
 {
-    private $title;
+    private ?string $title = null;
 
-    private $body;
+    private ?string $body = null;
 
-    private $image;
+    private ?string $image = null;
 
-    private $badge;
+    private ?int $badge = null;
 
-    private $sound;
+    private ?string $sound = null;
 
-    private $priority;
+    private ?string $priority = null;
 
-    private $data = [];
+    private array $data = [];
 
-    private $withoutDefaultSound;
+    private ?bool $withoutDefaultSound = null;
 
     /**
      * Create a new FcmMessage instance from an array.
-     *
-     * @return FcmMessage
      */
-    public static function createFromArray($message)
+    public static function createFromArray(array $message): self
     {
         $fcmMessage = new FcmMessage;
 
@@ -53,9 +53,9 @@ class FcmMessage
         }
 
         if (isset($message['priority'])) {
-            if ($message['priority'] == 'highest') {
+            if ($message['priority'] === 'highest') {
                 $fcmMessage->priorityHighest();
-            } elseif ($message['priority'] == 'lowest') {
+            } elseif ($message['priority'] === 'lowest') {
                 $fcmMessage->priorityLowest();
             }
         }
@@ -73,11 +73,8 @@ class FcmMessage
 
     /**
      * Set the title of the message.
-     *
-     * @param  string  $title
-     * @return $this
      */
-    public function title($title)
+    public function title(string $title): self
     {
         $this->title = $title;
 
@@ -86,11 +83,8 @@ class FcmMessage
 
     /**
      * Set the body of the message.
-     *
-     * @param  string  $body
-     * @return $this
      */
-    public function body($body)
+    public function body(string $body): self
     {
         $this->body = $body;
 
@@ -99,11 +93,8 @@ class FcmMessage
 
     /**
      * Set the image of the message.
-     *
-     * @param  string  $image
-     * @return $this
      */
-    public function image($image)
+    public function image(string $image): self
     {
         $this->image = $image;
 
@@ -112,11 +103,8 @@ class FcmMessage
 
     /**
      * Set the badge of the message.
-     *
-     * @param  int  $badge
-     * @return $this
      */
-    public function badge($badge)
+    public function badge(int $badge): self
     {
         $this->badge = $badge;
 
@@ -125,11 +113,8 @@ class FcmMessage
 
     /**
      * Set the sound of the message.
-     *
-     * @param  string  $sound
-     * @return $this
      */
-    public function sound($sound)
+    public function sound(string $sound): self
     {
         $this->sound = $sound;
 
@@ -138,11 +123,8 @@ class FcmMessage
 
     /**
      * Set the data of the message.
-     *
-     * @param  array  $data
-     * @return $this
      */
-    public function data($data)
+    public function data(array $data): self
     {
         $this->data = $data;
 
@@ -151,10 +133,8 @@ class FcmMessage
 
     /**
      * Set the message to be sent without the default sound.
-     *
-     * @return $this
      */
-    public function withoutDefaultSound()
+    public function withoutDefaultSound(): self
     {
         $this->withoutDefaultSound = true;
 
@@ -163,10 +143,8 @@ class FcmMessage
 
     /**
      * Set the message priority to high.
-     *
-     * @return $this
      */
-    public function priorityHighest()
+    public function priorityHighest(): self
     {
         $this->priority = 'highest';
 
@@ -175,10 +153,8 @@ class FcmMessage
 
     /**
      * Set the message priority to normal.
-     *
-     * @return $this
      */
-    public function priorityLowest()
+    public function priorityLowest(): self
     {
         $this->priority = 'lowest';
 
@@ -186,11 +162,43 @@ class FcmMessage
     }
 
     /**
-     * Get the message as an array.
+     * Dispatch this message to an arbitrary list of FCM tokens.
      *
-     * @return array
+     * Tokens may span many notifiables or come from outside the
+     * `fcm_devices` table. The queued job chunks into batches of 500.
      */
-    public function toArray()
+    public function sendToTokens(array $tokens): void
+    {
+        FcmSendToTokensJob::dispatch($this, $tokens);
+    }
+
+    /**
+     * Dispatch this message to every active device across a set of notifiables.
+     *
+     * Pools all active tokens into a single queued multicast job, unlike
+     * Laravel's Notification::send() which dispatches per notifiable.
+     */
+    public function sendToNotifiables(iterable $notifiables): void
+    {
+        $tokens = [];
+
+        foreach ($notifiables as $notifiable) {
+            if (! method_exists($notifiable, 'fcmDevices')) {
+                continue;
+            }
+
+            foreach ($notifiable->fcmDevices()->active()->withPushToken()->pluck('fcm_token') as $token) {
+                $tokens[] = $token;
+            }
+        }
+
+        $this->sendToTokens($tokens);
+    }
+
+    /**
+     * Get the message as an array.
+     */
+    public function toArray(): array
     {
         $message = [];
 

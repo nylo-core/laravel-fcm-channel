@@ -15,16 +15,14 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $notification;
+    public FcmMessage $notification;
 
-    public $notifiable;
+    public mixed $notifiable;
 
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
-    public function __construct($notification, $notifiable)
+    public function __construct(FcmMessage|array $notification, mixed $notifiable)
     {
         if (! ($notification instanceof FcmMessage)) {
             $this->notification = FcmMessage::createFromArray($notification);
@@ -49,7 +47,7 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 
         $fcmDevices = $this->notifiable->fcmDevices()->active()->withPushToken();
 
-        if ($fcmDevices->count() == 0) {
+        if ($fcmDevices->count() === 0) {
             return;
         }
 

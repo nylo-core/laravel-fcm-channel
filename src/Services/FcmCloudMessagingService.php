@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\AndroidConfig;
 use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Nylo\LaravelFCM\Enums\PriorityLevel;
 use Nylo\LaravelFCM\Events\FcmMessageFailed;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
@@ -49,6 +50,44 @@ class FcmCloudMessagingService extends FirebaseService
             'failure_count' => $report->failures()->count(),
             'tokens_deactivated' => $deactivatedCount,
         ]);
+    }
+
+    /**
+     * Send a message to an arbitrary list of FCM tokens.
+     *
+     * Tokens may belong to any number of notifiables, or come from outside
+     * the `fcm_devices` table. Tokens are de-duplicated and chunked into
+     * batches of 500 (Firebase's multicast limit).
+     */
+    public function sendToTokens(FcmMessage $notificationMessage, array $tokens): void
+    {
+        $tokens = array_values(array_unique(array_filter($tokens, fn ($t) => is_string($t) && $t !== '')));
+
+        if (empty($tokens)) {
+            return;
+        }
+
+        $messaging = $this->getFactory()->createMessaging();
+        $message = $this->buildCloudMessage($notificationMessage);
+
+        foreach (array_chunk($tokens, 500) as $chunk) {
+            $report = $messaging->sendMulticast($message, $chunk);
+
+            $tokensToDeactivate = array_merge(
+                $report->unknownTokens(),
+                $report->invalidTokens()
+            );
+
+            $deactivatedCount = $this->deactivateInvalidTokens($tokensToDeactivate);
+
+            $this->handleFailures($report);
+
+            Log::info('FCM multicast sent', [
+                'success_count' => $report->successes()->count(),
+                'failure_count' => $report->failures()->count(),
+                'tokens_deactivated' => $deactivatedCount,
+            ]);
+        }
     }
 
     /**
@@ -115,11 +154,12 @@ class FcmCloudMessagingService extends FirebaseService
             ->withAndroidConfig($androidConfig);
 
         if (! empty($firebaseMessageArray['priority'])) {
-            if ($firebaseMessageArray['priority'] === 'highest') {
-                $message = $message->withHighestPossiblePriority();
-            } elseif ($firebaseMessageArray['priority'] === 'lowest') {
-                $message = $message->withLowestPossiblePriority();
-            }
+            $priority = PriorityLevel::tryFrom($firebaseMessageArray['priority']);
+            $message = match ($priority) {
+                PriorityLevel::HIGHEST => $message->withHighestPossiblePriority(),
+                PriorityLevel::LOWEST => $message->withLowestPossiblePriority(),
+                default => $message,
+            };
         }
 
         if (! empty($firebaseMessageArray['data'])) {

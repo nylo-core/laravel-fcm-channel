@@ -69,11 +69,8 @@ class FcmDevice extends Model
 
     /**
      * Send a message to this model.
-     *
-     * @param  \Nylo\LaravelFCM\Models\FcmMessage|array  $message
-     * @return void
      */
-    public function sendFcmMessage($message)
+    public function sendFcmMessage(FcmMessage|array $message): void
     {
         if (! ($message instanceof FcmMessage)) {
             $message = FcmMessage::createFromArray($message);

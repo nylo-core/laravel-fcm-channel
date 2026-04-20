@@ -17,7 +17,7 @@ class FCMChannel
     {
         $payload = $notification->toFcm($notifiable);
 
-        if ($notifiable->canSendNotification(get_class($notification)) === false) {
+        if (! $notifiable->canSendNotification(get_class($notification))) {
             return;
         }
 

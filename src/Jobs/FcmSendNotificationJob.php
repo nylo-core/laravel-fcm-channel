@@ -8,22 +8,21 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Nylo\LaravelFCM\Models\FcmDevice;
 use Nylo\LaravelFCM\Models\FcmMessage;
 
 class FcmSendNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $notification;
+    public FcmMessage $notification;
 
-    public $device;
+    public ?FcmDevice $device;
 
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
-    public function __construct(FcmMessage $notification, $device)
+    public function __construct(FcmMessage $notification, ?FcmDevice $device)
     {
         $this->notification = $notification;
         $this->device = $device;

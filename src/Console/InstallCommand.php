@@ -42,17 +42,8 @@ class InstallCommand extends Command
 
         $this->info('Laravel FCM scaffolding installed successfully.');
 
-        $arrTablesMissing = [];
-        if (! Schema::hasTable('fcm_user_devices')) {
-            $arrTablesMissing[] = 'fcm_user_devices';
-        }
-
-        if (! Schema::hasTable('fcm_api_app_requests')) {
-            $arrTablesMissing[] = 'fcm_api_app_requests';
-        }
-
-        if (! empty($arrTablesMissing)) {
-            $this->comment('You are missing the tables '.implode(',', $arrTablesMissing).' for Laravel FCM to work...');
+        if (! Schema::hasTable('fcm_devices')) {
+            $this->comment('You are missing the fcm_devices table for Laravel FCM to work...');
 
             if ($this->confirm('Would you also like to run the migration now too?')) {
                 $this->comment('Running Laravel FCM migration...');
