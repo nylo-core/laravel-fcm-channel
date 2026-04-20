@@ -1,3 +1,8 @@
+## [1.7.1] - 2026-04-20
+
+### Security
+- Bump `phpunit/phpunit` dev dependency to `^12.5.22` to pick up the patch for [GHSA-qrr6-mg7r-m243](https://github.com/advisories/GHSA-qrr6-mg7r-m243) (argument injection via newline in PHP INI values forwarded to child processes, CVSS 7.8). Dev-only dependency — does not affect package consumers at runtime.
+
 ## [1.7.0] - 2026-04-20
 
 ### Added
