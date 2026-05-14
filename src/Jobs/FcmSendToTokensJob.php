@@ -62,7 +62,7 @@ class FcmSendToTokensJob implements ShouldQueue
     /**
      * Handle a job failure.
      *
-     * @param  \Exception  $exception
+     * @param  Exception  $exception
      */
     public function failed($exception): void
     {

@@ -65,7 +65,7 @@ class ProcessFcmNotificationsJob implements ShouldQueue
     /**
      * Handle a job failure.
      *
-     * @param  \Exception  $exception
+     * @param  Exception  $exception
      * @return void
      */
     public function failed($exception)

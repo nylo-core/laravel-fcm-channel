@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Nylo\LaravelFCM\Channels\FCMChannel;
+use Nylo\LaravelFCM\Http\Middleware\AppApiRequestMiddleware;
 
 class FcmAppServiceProvider extends ServiceProvider
 {
@@ -72,7 +73,7 @@ class FcmAppServiceProvider extends ServiceProvider
     protected function registerRoutes()
     {
         $middleware = config('laravelfcm.middleware', ['auth:sanctum']);
-        array_push($middleware, \Nylo\LaravelFCM\Http\Middleware\AppApiRequestMiddleware::class);
+        array_push($middleware, AppApiRequestMiddleware::class);
 
         Route::group([
             'prefix' => config('laravelfcm.path', 'api/fcm/'),

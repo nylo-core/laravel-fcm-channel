@@ -27,7 +27,7 @@ trait HasFcmDevices
     /**
      * Send a FCM message.
      *
-     * @param  \Nylo\LaravelFCM\Models\FcmMessage|array  $message
+     * @param  FcmMessage|array  $message
      * @return void
      */
     public function sendFcmMessage($message)

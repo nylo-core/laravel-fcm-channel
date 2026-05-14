@@ -1,3 +1,24 @@
+## [1.8.0] - 2026-05-14
+
+### Added
+- `PATCH /device/meta` endpoint via `LaravelFcmController::updateMeta` for updating a device's `uuid`, `model`, `display_name`, `platform`, and `version`. Returns `200` on success, `400` when no fields are provided
+- `FcmUpdateMetaRequest` form request enforcing the same device-ownership authorization as `FcmUpdateRequest`
+- Migration `add_unique_index_to_fcm_devices_table` adds a unique index on `(fcm_token, notifyable_id, notifyable_type)`. Runs a pre-flight duplicate check and aborts with a diagnostic `SELECT` query if existing data would violate the constraint, rather than letting `ALTER TABLE` fail mid-deploy. **Operators: if the migration aborts, run the SQL it prints to identify duplicates and deduplicate before re-running.**
+- 18 new tests covering middleware lookup paths, soft-delete restore, controller endpoints, and request authorization (test suite: 65 → 83 tests, 127 → 175 assertions)
+
+### Changed
+- **`AppApiRequestMiddleware` rewrite** — replaces the legacy `firstOrCreate` flow with an explicit `fcm_token → uuid → create` lookup chain. The token lookup is now scoped by `notifyable_type`, preventing device leakage across notifyable models that share an id. Existing devices have their meta fields refreshed on every authenticated request when those fields are present in `X-DMETA`
+- **Soft-deleted devices now auto-restore on re-registration.** Middleware uses `withTrashed()` on both lookups and calls `restore()` + `is_active = 1` when a match is trashed, so the new unique index does not block legitimate reinstall flows. **Behavior change**: if your app relies on soft-delete as a "device disabled" signal, an incoming request matching the trashed row will revive it
+- **`X-DMETA` now requires a non-empty `uuid`.** Requests without a valid uuid return `400` immediately with a dedicated log line instead of failing later at the DB layer. **Behavior change**: previously, malformed requests with NULL uuid could sometimes match unrelated rows
+- `FcmUpdateRequest::authorize()` now reads `device` via `$this->input()` instead of `$this->get()` — reads JSON bodies in addition to form/query data
+
+### Fixed
+- New devices now persist `fcm_token` on initial creation. The old `firstOrCreate` did not write `fcm_token` on insert, requiring a follow-up `PUT /device` call to set it
+- An existing device's `is_active` is now set to `1` when its `fcm_token` changes, ensuring re-registered devices are immediately notifiable
+
+### Style
+- Apply Laravel Pint formatting across `FcmAppServiceProvider`, jobs, model, trait, and several test files (constructor parens removed, FQN annotations normalised to short imports)
+
 ## [1.7.1] - 2026-04-20
 
 ### Security

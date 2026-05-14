@@ -2,6 +2,8 @@
 
 namespace Nylo\LaravelFCM\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Nylo\LaravelFCM\Http\Requests\FcmUpdateMetaRequest;
 use Nylo\LaravelFCM\Http\Requests\FcmUpdateRequest;
 
 class LaravelFcmController extends Controller
@@ -10,7 +12,7 @@ class LaravelFcmController extends Controller
      * Update a FcmDevice
      *
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(FcmUpdateRequest $request)
     {
@@ -21,6 +23,27 @@ class LaravelFcmController extends Controller
 
         if ($request->has('fcm_token')) {
             $updatePayload['fcm_token'] = $request->fcm_token;
+        }
+
+        abort_if(empty($updatePayload), 400);
+
+        $didUpdate = $request->device->update($updatePayload);
+
+        return response()->json(['status' => $didUpdate ? 200 : 500]);
+    }
+
+    /**
+     * Update the metadata of a FcmDevice (uuid, model, display_name, platform, version).
+     *
+     * @return JsonResponse
+     */
+    public function updateMeta(FcmUpdateMetaRequest $request)
+    {
+        $updatePayload = [];
+        foreach (['uuid', 'model', 'display_name', 'platform', 'version'] as $key) {
+            if ($request->filled($key)) {
+                $updatePayload[$key] = $request->input($key);
+            }
         }
 
         abort_if(empty($updatePayload), 400);

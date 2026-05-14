@@ -16,7 +16,7 @@ class FirebaseServiceTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Firebase service account JSON is not configured');
 
-        new FirebaseService();
+        new FirebaseService;
     }
 
     public function test_throws_exception_when_config_is_invalid_json()
@@ -26,7 +26,7 @@ class FirebaseServiceTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid Firebase service account JSON:');
 
-        new FirebaseService();
+        new FirebaseService;
     }
 
     public function test_initializes_factory_with_valid_config()
@@ -44,7 +44,7 @@ class FirebaseServiceTest extends TestCase
 
         config(['firebase_service_account_json' => $validJson]);
 
-        $service = new FirebaseService();
+        $service = new FirebaseService;
 
         $this->assertInstanceOf(Factory::class, $service->getFactory());
     }

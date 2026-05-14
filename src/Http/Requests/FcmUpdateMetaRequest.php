@@ -5,7 +5,7 @@ namespace Nylo\LaravelFCM\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class FcmUpdateRequest extends FormRequest
+class FcmUpdateMetaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,8 +29,11 @@ class FcmUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'is_active' => 'nullable|boolean',
-            'fcm_token' => 'nullable|string',
+            'uuid' => 'nullable|string',
+            'model' => 'nullable|string',
+            'display_name' => 'nullable|string',
+            'platform' => 'nullable|string',
+            'version' => 'nullable|string',
         ];
     }
 }

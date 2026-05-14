@@ -2,6 +2,7 @@
 
 namespace Nylo\LaravelFCM\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Nylo\LaravelFCM\Jobs\FcmSendNotificationJob;
@@ -40,8 +41,8 @@ class FcmDevice extends Model
     /**
      * Scope models with fcm push token.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeWithPushToken($query)
     {
@@ -51,8 +52,8 @@ class FcmDevice extends Model
     /**
      * Scope models which are active (not trashed).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeActive($query)
     {

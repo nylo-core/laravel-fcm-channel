@@ -34,41 +34,80 @@ class AppApiRequestMiddleware
             abort(400);
         }
 
+        if (! isset($dMeta['uuid']) || ! is_string($dMeta['uuid']) || $dMeta['uuid'] === '') {
+            Log::info('FCM middleware received X-DMETA without a valid uuid');
+            abort(400);
+        }
+
         try {
             DB::transaction(function () use ($user, $dMeta, &$request) {
                 if ($request->has('fcm_token')) {
                     $dMeta['fcm_token'] = $request->fcm_token;
                 }
 
-                if (! empty($dMeta['fcm_token'])) {
-                    $device = FcmDevice::where('fcm_token', $dMeta['fcm_token'])
-                        ->where('notifyable_id', $user->id)
-                        ->first();
-                    if (! empty($device)) {
-                        $request->request->add(['device' => $device]);
+                $notifyableType = config('laravelfcm.default_notifyable_model', 'App\Models\User');
 
-                        return;
+                // Lookups include trashed rows: the unique index
+                // (fcm_token, notifyable_id, notifyable_type) doesn't filter by
+                // deleted_at, so a soft-deleted row would block re-registration
+                // of the same token. Find it, then restore() on the update path.
+                /** @var FcmDevice|null $device */
+                $device = null;
+                if (! empty($dMeta['fcm_token'])) {
+                    $device = FcmDevice::withTrashed()
+                        ->where('fcm_token', $dMeta['fcm_token'])
+                        ->where('notifyable_id', $user->id)
+                        ->where('notifyable_type', $notifyableType)
+                        ->first();
+                }
+
+                if (empty($device)) {
+                    $device = FcmDevice::withTrashed()
+                        ->where('uuid', $dMeta['uuid'])
+                        ->where('notifyable_id', $user->id)
+                        ->where('notifyable_type', $notifyableType)
+                        ->first();
+                }
+
+                if (empty($device)) {
+                    $device = FcmDevice::create([
+                        'uuid' => $dMeta['uuid'],
+                        'model' => $dMeta['model'] ?? null,
+                        'display_name' => $dMeta['display_name'] ?? null,
+                        'platform' => $dMeta['platform'] ?? null,
+                        'version' => $dMeta['version'] ?? null,
+                        'notifyable_id' => $user->id,
+                        'notifyable_type' => $notifyableType,
+                        'fcm_token' => $dMeta['fcm_token'] ?? null,
+                        'is_active' => 1,
+                    ]);
+
+                    $request->request->add(['device' => $device]);
+
+                    return;
+                }
+
+                $update = [];
+
+                if ($device->trashed()) {
+                    $device->restore();
+                    $update['is_active'] = 1;
+                }
+
+                foreach (['uuid', 'model', 'display_name', 'platform', 'version'] as $key) {
+                    if (isset($dMeta[$key])) {
+                        $update[$key] = $dMeta[$key];
                     }
                 }
 
-                // get device
-                $device = FcmDevice::firstOrCreate(
-                    [
-                        'uuid' => $dMeta['uuid'],
-                        'notifyable_id' => $user->id,
-                        'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
-                    ],
-                    [
-                        'uuid' => $dMeta['uuid'],
-                        'model' => $dMeta['model'],
-                        'display_name' => $dMeta['display_name'],
-                        'platform' => $dMeta['platform'],
-                        'version' => $dMeta['version'],
-                        'notifyable_id' => $user->id,
-                        'notifyable_type' => config('laravelfcm.default_notifyable_model', 'App\Models\User'),
-                        'is_active' => 1,
-                    ]
-                );
+                if (! empty($dMeta['fcm_token']) && $dMeta['fcm_token'] !== $device->fcm_token) {
+                    $update['fcm_token'] = $dMeta['fcm_token'];
+                    $update['is_active'] = 1;
+                }
+
+                if (! empty($update)) {
+                    $device->update($update);
+                }
 
                 $request->request->add(['device' => $device]);
             });
