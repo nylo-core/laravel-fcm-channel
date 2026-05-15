@@ -1,3 +1,12 @@
+## [1.8.1] - 2026-05-15
+
+### Added
+- 5 new feature tests for `LaravelFcmController` covering: cross-user isolation on `PUT /device`, validation rejection of non-boolean `is_active` (`422`), validation rejection of non-string meta fields (`422`), enforcement of the `updateMeta` allowlist (unsupported body keys silently ignored), and field-preservation on partial updates. Test suite: 83 → 88 tests, 175 → 191 assertions
+
+### Changed
+- Renamed `test_update_meta_returns_403_when_device_belongs_to_different_user` to `test_update_meta_cannot_modify_another_users_device`. The previous name implied a `403` response, but the test asserts `200` because `AppApiRequestMiddleware` re-resolves the device to the attacker rather than blocking the request
+- Removed an unused `$device` assignment in `test_update_returns_400_when_no_payload_provided` (the row is created for its side effect; no need to retain the reference)
+
 ## [1.8.0] - 2026-05-14
 
 ### Added

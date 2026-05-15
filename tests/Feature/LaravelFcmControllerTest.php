@@ -33,7 +33,7 @@ class LaravelFcmControllerTest extends TestCase
         $user = ControllerTestUser::create(['name' => 'Test']);
         $this->actingAs($user);
 
-        $device = FcmDevice::create([
+        FcmDevice::create([
             'uuid' => 'test-uuid',
             'notifyable_id' => $user->id,
             'notifyable_type' => ControllerTestUser::class,
@@ -165,6 +165,99 @@ class LaravelFcmControllerTest extends TestCase
         $this->assertEquals('new-token-789', $device->fcm_token);
     }
 
+    public function test_update_preserves_fcm_token_when_only_is_active_provided()
+    {
+        $user = ControllerTestUser::create(['name' => 'Test']);
+        $this->actingAs($user);
+
+        $device = FcmDevice::create([
+            'uuid' => 'test-uuid',
+            'notifyable_id' => $user->id,
+            'notifyable_type' => ControllerTestUser::class,
+            'fcm_token' => 'original-token',
+            'is_active' => true,
+        ]);
+
+        $dmeta = json_encode([
+            'uuid' => 'test-uuid',
+            'fcm_token' => 'original-token',
+        ]);
+
+        $response = $this->putJson(
+            config('laravelfcm.path', 'api/fcm/').'device',
+            ['is_active' => false],
+            ['X-DMETA' => $dmeta]
+        );
+
+        $response->assertStatus(200);
+
+        $device->refresh();
+        $this->assertFalse((bool) $device->is_active);
+        $this->assertEquals('original-token', $device->fcm_token);
+    }
+
+    public function test_update_returns_422_when_is_active_is_invalid()
+    {
+        $user = ControllerTestUser::create(['name' => 'Test']);
+        $this->actingAs($user);
+
+        FcmDevice::create([
+            'uuid' => 'test-uuid',
+            'notifyable_id' => $user->id,
+            'notifyable_type' => ControllerTestUser::class,
+            'fcm_token' => 'token-123',
+            'is_active' => true,
+        ]);
+
+        $dmeta = json_encode([
+            'uuid' => 'test-uuid',
+            'fcm_token' => 'token-123',
+        ]);
+
+        $response = $this->putJson(
+            config('laravelfcm.path', 'api/fcm/').'device',
+            ['is_active' => 'not-a-boolean'],
+            ['X-DMETA' => $dmeta]
+        );
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['is_active']);
+    }
+
+    public function test_update_cannot_modify_another_users_device()
+    {
+        $owner = ControllerTestUser::create(['name' => 'Owner']);
+        $attacker = ControllerTestUser::create(['name' => 'Attacker']);
+        $this->actingAs($attacker);
+
+        // The middleware scopes lookups by notifyable_id/type, so the attacker's
+        // request resolves to a fresh device — the owner's record must be untouched.
+        $ownerDevice = FcmDevice::create([
+            'uuid' => 'owner-uuid',
+            'notifyable_id' => $owner->id,
+            'notifyable_type' => ControllerTestUser::class,
+            'fcm_token' => 'owner-token',
+            'is_active' => true,
+        ]);
+
+        $dmeta = json_encode([
+            'uuid' => 'attacker-uuid',
+            'fcm_token' => 'attacker-token',
+        ]);
+
+        $response = $this->putJson(
+            config('laravelfcm.path', 'api/fcm/').'device',
+            ['is_active' => false, 'fcm_token' => 'hijacked-token'],
+            ['X-DMETA' => $dmeta]
+        );
+
+        $response->assertStatus(200);
+
+        $ownerDevice->refresh();
+        $this->assertTrue((bool) $ownerDevice->is_active);
+        $this->assertEquals('owner-token', $ownerDevice->fcm_token);
+    }
+
     public function test_update_meta_returns_400_when_no_payload_provided()
     {
         $user = ControllerTestUser::create(['name' => 'Test']);
@@ -270,7 +363,71 @@ class LaravelFcmControllerTest extends TestCase
         $this->assertEquals('New Name', $device->display_name);
     }
 
-    public function test_update_meta_returns_403_when_device_belongs_to_different_user()
+    public function test_update_meta_returns_422_when_platform_is_invalid()
+    {
+        $user = ControllerTestUser::create(['name' => 'Test']);
+        $this->actingAs($user);
+
+        FcmDevice::create([
+            'uuid' => 'test-uuid',
+            'notifyable_id' => $user->id,
+            'notifyable_type' => ControllerTestUser::class,
+            'fcm_token' => 'token-123',
+            'is_active' => true,
+        ]);
+
+        $dmeta = json_encode([
+            'uuid' => 'test-uuid',
+            'fcm_token' => 'token-123',
+        ]);
+
+        $response = $this->patchJson(
+            config('laravelfcm.path', 'api/fcm/').'device/meta',
+            ['platform' => 12345],
+            ['X-DMETA' => $dmeta]
+        );
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['platform']);
+    }
+
+    public function test_update_meta_ignores_unsupported_keys()
+    {
+        $user = ControllerTestUser::create(['name' => 'Test']);
+        $this->actingAs($user);
+
+        $device = FcmDevice::create([
+            'uuid' => 'test-uuid',
+            'notifyable_id' => $user->id,
+            'notifyable_type' => ControllerTestUser::class,
+            'fcm_token' => 'token-123',
+            'is_active' => true,
+        ]);
+
+        $dmeta = json_encode([
+            'uuid' => 'test-uuid',
+            'fcm_token' => 'token-123',
+        ]);
+
+        $response = $this->patchJson(
+            config('laravelfcm.path', 'api/fcm/').'device/meta',
+            [
+                'model' => 'iPhone 15',
+                'is_active' => false,
+                'notifyable_id' => 99999,
+            ],
+            ['X-DMETA' => $dmeta]
+        );
+
+        $response->assertStatus(200);
+
+        $device->refresh();
+        $this->assertEquals('iPhone 15', $device->model);
+        $this->assertTrue((bool) $device->is_active);
+        $this->assertEquals($user->id, $device->notifyable_id);
+    }
+
+    public function test_update_meta_cannot_modify_another_users_device()
     {
         $owner = ControllerTestUser::create(['name' => 'Owner']);
         $attacker = ControllerTestUser::create(['name' => 'Attacker']);
