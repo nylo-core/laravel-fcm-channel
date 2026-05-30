@@ -1,3 +1,8 @@
+## [1.8.2] - 2026-05-30
+
+### Changed
+- `AppApiRequestMiddleware` only stages a device metadata field (`uuid`, `model`, `display_name`, `platform`, `version`) for update when the incoming `X-DMETA` value actually differs from the stored value. When every field matches, the update array stays empty and the `update()` call is skipped entirely — avoiding a no-op `fill()`/`save()` and its `saving`/`saved` model events. Mirrors the existing `fcm_token` change-detection check
+
 ## [1.8.1] - 2026-05-15
 
 ### Added
