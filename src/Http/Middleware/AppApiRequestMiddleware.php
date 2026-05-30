@@ -95,7 +95,7 @@ class AppApiRequestMiddleware
                 }
 
                 foreach (['uuid', 'model', 'display_name', 'platform', 'version'] as $key) {
-                    if (isset($dMeta[$key])) {
+                    if (isset($dMeta[$key]) && $dMeta[$key] !== $device->{$key}) {
                         $update[$key] = $dMeta[$key];
                     }
                 }
