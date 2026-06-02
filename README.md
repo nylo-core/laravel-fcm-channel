@@ -80,7 +80,7 @@ You can configure this package in `config/laravelfcm.php`.
 
 ## Configuring your Model
 
-Add the `HasFcmDevices` trait to your User Model.
+Add the `HasFcmDevices` trait to your User Model and implement the `FcmNotifiable` contract.
 ```php
 <?php
 
@@ -88,16 +88,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Nylo\LaravelFCM\Traits\HasFcmDevices; // Use HasFcmDevices trait
 use Laravel\Sanctum\HasApiTokens;
+use Nylo\LaravelFCM\Contracts\FcmNotifiable; // FcmNotifiable contract
+use Nylo\LaravelFCM\Traits\HasFcmDevices; // HasFcmDevices trait
 
-class User extends Authenticatable
+class User extends Authenticatable implements FcmNotifiable
 {
     use HasApiTokens, HasFactory, HasFcmDevices; // Add it to your model
     
     ...
 }
 ```
+> **Upgrading to v2.0:** notifiable models must now implement `Nylo\LaravelFCM\Contracts\FcmNotifiable` (the `HasFcmDevices` trait already satisfies it). Models that only `use HasFcmDevices` without implementing the contract will no longer receive notifications.
 
 This package uses [`laravel/sanctum`](https://laravel.com/docs/sanctum) as the default middleware for your model. 
 

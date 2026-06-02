@@ -17,7 +17,7 @@ class FirebaseService
     {
         $config = config('firebase_service_account_json');
 
-        if (empty($config)) {
+        if (! is_string($config) || $config === '') {
             throw new RuntimeException('Firebase service account JSON is not configured');
         }
 
@@ -25,6 +25,10 @@ class FirebaseService
             $credentials = json_decode($config, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new RuntimeException('Invalid Firebase service account JSON: '.$e->getMessage());
+        }
+
+        if (! is_array($credentials)) {
+            throw new RuntimeException('Invalid Firebase service account JSON: expected a JSON object');
         }
 
         $this->factory = (new Factory)->withServiceAccount($credentials);

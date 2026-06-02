@@ -5,6 +5,7 @@ namespace Nylo\LaravelFCM\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Nylo\LaravelFCM\Http\Requests\FcmUpdateMetaRequest;
 use Nylo\LaravelFCM\Http\Requests\FcmUpdateRequest;
+use Nylo\LaravelFCM\Models\FcmDevice;
 
 class LaravelFcmController extends Controller
 {
@@ -27,7 +28,10 @@ class LaravelFcmController extends Controller
 
         abort_if(empty($updatePayload), 400);
 
-        $didUpdate = $request->device->update($updatePayload);
+        $device = $request->input('device');
+        abort_unless($device instanceof FcmDevice, 400);
+
+        $didUpdate = $device->update($updatePayload);
 
         return response()->json(['status' => $didUpdate ? 200 : 500]);
     }
@@ -48,7 +52,10 @@ class LaravelFcmController extends Controller
 
         abort_if(empty($updatePayload), 400);
 
-        $didUpdate = $request->device->update($updatePayload);
+        $device = $request->input('device');
+        abort_unless($device instanceof FcmDevice, 400);
+
+        $didUpdate = $device->update($updatePayload);
 
         return response()->json(['status' => $didUpdate ? 200 : 500]);
     }

@@ -43,6 +43,22 @@ class FcmMessageTest extends TestCase
         $this->assertEquals(5, $message->toArray()['badge']);
     }
 
+    public function test_can_set_badge_from_string()
+    {
+        $message = new FcmMessage;
+        $result = $message->badge('7');
+
+        $this->assertInstanceOf(FcmMessage::class, $result);
+        $this->assertSame(7, $message->toArray()['badge']);
+    }
+
+    public function test_create_from_array_casts_string_badge_to_int()
+    {
+        $message = FcmMessage::createFromArray(['badge' => '3']);
+
+        $this->assertSame(3, $message->toArray()['badge']);
+    }
+
     public function test_can_set_sound()
     {
         $message = new FcmMessage;

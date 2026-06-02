@@ -29,7 +29,7 @@ class AppApiRequestMiddleware
 
         $dMeta = json_decode($deviceMeta, true);
 
-        if (empty($dMeta)) {
+        if (! is_array($dMeta) || empty($dMeta)) {
             Log::info('FCM middleware has empty X-DMETA data');
             abort(400);
         }

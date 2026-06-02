@@ -18,10 +18,14 @@ class FcmSendToTokensJob implements ShouldQueue
 
     public FcmMessage $notification;
 
+    /** @var list<string> */
     public array $tokens;
 
     /**
      * Create a new job instance.
+     *
+     * @param  FcmMessage|array<string, mixed>  $notification
+     * @param  array<int, mixed>  $tokens
      */
     public function __construct(FcmMessage|array $notification, array $tokens)
     {

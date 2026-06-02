@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - src
+
+    # Level 10 is the highest level. See https://phpstan.org/user-guide/rule-levels
+    level: 10
+
+    ignoreErrors:
+        # HasFcmDevices is a public extension-point trait consumed by host-app
+        # notifiable models; nothing in src/ uses it, which is by design.
+        -
+            identifier: trait.unused
+            path: src/Traits/HasFcmDevices.php

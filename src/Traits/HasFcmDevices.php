@@ -2,6 +2,7 @@
 
 namespace Nylo\LaravelFCM\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Nylo\LaravelFCM\Jobs\ProcessFcmNotificationsJob;
 use Nylo\LaravelFCM\Models\FcmDevice;
 use Nylo\LaravelFCM\Models\FcmMessage;
@@ -10,8 +11,10 @@ trait HasFcmDevices
 {
     /**
      * Get the fcm devices.
+     *
+     * @return MorphMany<FcmDevice, $this>
      */
-    public function fcmDevices()
+    public function fcmDevices(): MorphMany
     {
         return $this->morphMany(FcmDevice::class, 'notifyable');
     }

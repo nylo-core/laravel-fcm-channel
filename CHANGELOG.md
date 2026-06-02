@@ -1,3 +1,27 @@
+## [2.0.0] - 2026-06-02
+
+### ⚠️ Breaking changes
+- **Notifiable models must now implement `Nylo\LaravelFCM\Contracts\FcmNotifiable`.** Both the per-notifiable path (`$user->notify(...)` → `ProcessFcmNotificationsJob`) and the multicast path (`FcmMessage::sendToNotifiables(...)`) now gate on `$notifiable instanceof FcmNotifiable`. A model that only `use`s the `HasFcmDevices` trait **without** also declaring `implements FcmNotifiable` is skipped — a warning is logged and no FCM notifications are sent to it. **Action required:** add `implements FcmNotifiable` to your notifiable model(s); the `HasFcmDevices` trait already supplies the required `fcmDevices(): MorphMany` method, so no other change is needed
+
+### Added
+- **`FcmNotifiable` contract** (`Nylo\LaravelFCM\Contracts\FcmNotifiable`) — the interface that marks an Eloquent model as a push-notification target, declaring `fcmDevices(): MorphMany`. Pair it with the `HasFcmDevices` trait, which provides the default morph-many implementation
+- **Static analysis at PHPStan level 10** via [Larastan](https://github.com/larastan/larastan): new `phpstan.neon.dist`, a `larastan/larastan: ^3.10` dev dependency, and a `composer analyse` script. The whole `src/` tree is annotated to pass level 10 with no baseline — the new `FcmNotifiable` contract replaces the previously-deferred "mixed notifiable" baseline errors with a real type
+- `FcmMessage::badge()` now accepts `int|string` and stores the value as an `int`, so badge counts coming straight from request input or JSON payloads work without manual casting (`createFromArray()` accepts a string badge too)
+
+### Changed
+- **`FcmMessage::sendToNotifiables()`** — the per-item guard changed from `method_exists($notifiable, 'fcmDevices')` to `$notifiable instanceof FcmNotifiable`, and a single aggregated warning is logged with the count of skipped notifiables. Tokens are filtered to non-empty strings before dispatch
+- **`FCMChannel::send()` hardened** — returns early when the notification class has no `toFcm()` method; normalizes an array payload to `array<string, mixed>` (and ignores unsupported payload types); and now treats `canSendNotification()` as **optional**, only calling it when the notifiable actually defines it (previously every notifiable was required to expose it)
+- **`FcmCloudMessagingService`** — builds the Kreait `Notification` via `Notification::create()` instead of an array, and normalizes the data payload to the string key/value map FCM requires (new `normalizeData()`: scalars, `null`, and `Stringable` cast to string; other values are JSON-encoded). Badge is applied only for non-zero integers; sound/priority guards tightened; `sendMessage()` now requires an `FcmDevice` and skips devices with an empty token; token lists are filtered to non-empty strings throughout
+- **`FirebaseService`** now rejects a service-account config that is not a non-empty JSON object string, throwing a clear `RuntimeException` (`expected a JSON object`) instead of failing deeper in the Kreait factory
+- **Input hardening for level 10** across the console and HTTP layers: `InstallCommand` bails out safely when a `file_get_contents()` returns `false`; `DetectsApplicationNamespace` falls back to `App\` when the container is not a full `Application`; `FcmAppServiceProvider` wraps a scalar `laravelfcm.middleware` config value in an array before appending the API middleware; the controllers and form requests resolve the injected `device` to a concrete `FcmDevice` (aborting `400` / failing authorization otherwise); `AppApiRequestMiddleware` checks the decoded `X-DMETA` is an array
+- Type annotations added across `src/` — relation/scope/collection generics, an `@property` map on `FcmDevice`, `list<>`/`array<>` shapes, and explicit `void` return types
+
+### Tests
+- Test suite 88 → 96 tests (191 → 204 assertions). New coverage: the `FcmNotifiable` contract gate (skips + warns), array-payload dispatch, notifications without a `canSendNotification()` method, notifications without a `toFcm()` method, and string→int badge casting
+
+### Notes
+- The local `phpstan.neon` override is now git-ignored (the committed config is `phpstan.neon.dist`)
+
 ## [1.8.2] - 2026-05-30
 
 ### Changed

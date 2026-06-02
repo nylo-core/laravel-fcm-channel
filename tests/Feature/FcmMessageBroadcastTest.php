@@ -4,6 +4,7 @@ namespace Nylo\LaravelFCM\Test\Feature;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Queue;
+use Nylo\LaravelFCM\Contracts\FcmNotifiable;
 use Nylo\LaravelFCM\Jobs\FcmSendToTokensJob;
 use Nylo\LaravelFCM\Models\FcmDevice;
 use Nylo\LaravelFCM\Models\FcmMessage;
@@ -114,7 +115,7 @@ class FcmMessageBroadcastTest extends TestCase
     }
 }
 
-class BroadcastTestUser extends Model
+class BroadcastTestUser extends Model implements FcmNotifiable
 {
     use HasFcmDevices;
 

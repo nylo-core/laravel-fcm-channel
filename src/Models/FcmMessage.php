@@ -2,6 +2,8 @@
 
 namespace Nylo\LaravelFCM\Models;
 
+use Illuminate\Support\Facades\Log;
+use Nylo\LaravelFCM\Contracts\FcmNotifiable;
 use Nylo\LaravelFCM\Jobs\FcmSendToTokensJob;
 
 /**
@@ -21,34 +23,37 @@ class FcmMessage
 
     private ?string $priority = null;
 
+    /** @var array<string, mixed> */
     private array $data = [];
 
     private ?bool $withoutDefaultSound = null;
 
     /**
      * Create a new FcmMessage instance from an array.
+     *
+     * @param  array<string, mixed>  $message
      */
     public static function createFromArray(array $message): self
     {
         $fcmMessage = new FcmMessage;
 
-        if (isset($message['title'])) {
+        if (isset($message['title']) && is_string($message['title'])) {
             $fcmMessage->title($message['title']);
         }
 
-        if (isset($message['body'])) {
+        if (isset($message['body']) && is_string($message['body'])) {
             $fcmMessage->body($message['body']);
         }
 
-        if (isset($message['image'])) {
+        if (isset($message['image']) && is_string($message['image'])) {
             $fcmMessage->image($message['image']);
         }
 
-        if (isset($message['badge'])) {
+        if (isset($message['badge']) && (is_int($message['badge']) || is_string($message['badge']))) {
             $fcmMessage->badge($message['badge']);
         }
 
-        if (isset($message['sound'])) {
+        if (isset($message['sound']) && is_string($message['sound'])) {
             $fcmMessage->sound($message['sound']);
         }
 
@@ -60,8 +65,12 @@ class FcmMessage
             }
         }
 
-        if (isset($message['data'])) {
-            $fcmMessage->data($message['data']);
+        if (isset($message['data']) && is_array($message['data'])) {
+            $data = [];
+            foreach ($message['data'] as $key => $value) {
+                $data[(string) $key] = $value;
+            }
+            $fcmMessage->data($data);
         }
 
         if (isset($message['withoutDefaultSound'])) {
@@ -103,10 +112,13 @@ class FcmMessage
 
     /**
      * Set the badge of the message.
+     *
+     * Accepts an int or a (numeric) string and stores it as an int, so callers
+     * may pass values coming straight from request input or JSON payloads.
      */
-    public function badge(int $badge): self
+    public function badge(int|string $badge): self
     {
-        $this->badge = $badge;
+        $this->badge = (int) $badge;
 
         return $this;
     }
@@ -123,6 +135,8 @@ class FcmMessage
 
     /**
      * Set the data of the message.
+     *
+     * @param  array<string, mixed>  $data
      */
     public function data(array $data): self
     {
@@ -166,6 +180,8 @@ class FcmMessage
      *
      * Tokens may span many notifiables or come from outside the
      * `fcm_devices` table. The queued job chunks into batches of 500.
+     *
+     * @param  array<int, string>  $tokens
      */
     public function sendToTokens(array $tokens): void
     {
@@ -177,19 +193,35 @@ class FcmMessage
      *
      * Pools all active tokens into a single queued multicast job, unlike
      * Laravel's Notification::send() which dispatches per notifiable.
+     *
+     * @param  iterable<mixed>  $notifiables
      */
     public function sendToNotifiables(iterable $notifiables): void
     {
         $tokens = [];
+        $skipped = 0;
 
         foreach ($notifiables as $notifiable) {
-            if (! method_exists($notifiable, 'fcmDevices')) {
+            if (! $notifiable instanceof FcmNotifiable) {
+                $skipped++;
+
                 continue;
             }
 
-            foreach ($notifiable->fcmDevices()->active()->withPushToken()->pluck('fcm_token') as $token) {
-                $tokens[] = $token;
+            $fcmTokens = $notifiable->fcmDevices()
+                ->active()
+                ->withPushToken()
+                ->pluck('fcm_token');
+
+            foreach ($fcmTokens as $token) {
+                if (is_string($token) && $token !== '') {
+                    $tokens[] = $token;
+                }
             }
+        }
+
+        if ($skipped > 0) {
+            Log::warning('Laravel FCM Channel: skipped '.$skipped.' notifiable(s) that do not implement '.FcmNotifiable::class.'; they received no FCM notifications. Implement the contract on your notifiable model (the HasFcmDevices trait already satisfies it).');
         }
 
         $this->sendToTokens($tokens);
@@ -197,6 +229,8 @@ class FcmMessage
 
     /**
      * Get the message as an array.
+     *
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

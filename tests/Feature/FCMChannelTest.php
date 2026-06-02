@@ -101,4 +101,107 @@ class FCMChannelTest extends TestCase
         // Channel dispatches job regardless of message content
         Queue::assertPushed(ProcessFcmNotificationsJob::class);
     }
+
+    public function test_does_not_dispatch_when_notification_has_no_to_fcm_method()
+    {
+        Queue::fake();
+
+        $notifiable = new class
+        {
+            use HasFcmDevices;
+
+            public function fcmDevices()
+            {
+                return collect();
+            }
+        };
+
+        // Base notification without a toFcm() method.
+        $notification = new class extends Notification {};
+
+        $channel = new FCMChannel;
+        $channel->send($notifiable, $notification);
+
+        Queue::assertNotPushed(ProcessFcmNotificationsJob::class);
+    }
+
+    public function test_does_not_dispatch_when_to_fcm_returns_unsupported_payload()
+    {
+        Queue::fake();
+
+        $notifiable = new class
+        {
+            use HasFcmDevices;
+
+            public function fcmDevices()
+            {
+                return collect();
+            }
+        };
+
+        $notification = new class extends Notification
+        {
+            public function toFcm($notifiable)
+            {
+                return null; // neither FcmMessage nor array
+            }
+        };
+
+        $channel = new FCMChannel;
+        $channel->send($notifiable, $notification);
+
+        Queue::assertNotPushed(ProcessFcmNotificationsJob::class);
+    }
+
+    public function test_dispatches_when_to_fcm_returns_array_payload()
+    {
+        Queue::fake();
+
+        $notifiable = new class
+        {
+            use HasFcmDevices;
+
+            public function fcmDevices()
+            {
+                return collect();
+            }
+        };
+
+        $notification = new class extends Notification
+        {
+            public function toFcm($notifiable)
+            {
+                return ['title' => 'Hi', 'body' => 'There'];
+            }
+        };
+
+        $channel = new FCMChannel;
+        $channel->send($notifiable, $notification);
+
+        Queue::assertPushed(ProcessFcmNotificationsJob::class, function (ProcessFcmNotificationsJob $job) {
+            return $job->notification instanceof FcmMessage
+                && $job->notification->toArray()['title'] === 'Hi';
+        });
+    }
+
+    public function test_dispatches_when_notifiable_has_no_can_send_notification_method()
+    {
+        Queue::fake();
+
+        // Plain object: no canSendNotification() — the guard must not fatal.
+        $notifiable = new class {};
+
+        $notification = new class extends Notification
+        {
+            public function toFcm($notifiable)
+            {
+                return (new FcmMessage)->title('Test');
+            }
+        };
+
+        $channel = new FCMChannel;
+        $channel->send($notifiable, $notification);
+
+        Queue::assertPushed(ProcessFcmNotificationsJob::class);
+    }
 }

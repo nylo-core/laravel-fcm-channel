@@ -3,6 +3,7 @@
 namespace Nylo\LaravelFCM\Console\Traits;
 
 use Illuminate\Container\Container;
+use Illuminate\Foundation\Application;
 
 trait DetectsApplicationNamespace
 {
@@ -13,6 +14,12 @@ trait DetectsApplicationNamespace
      */
     protected function getAppNamespace()
     {
-        return Container::getInstance()->getNamespace();
+        $app = Container::getInstance();
+
+        if ($app instanceof Application) {
+            return $app->getNamespace();
+        }
+
+        return 'App\\';
     }
 }

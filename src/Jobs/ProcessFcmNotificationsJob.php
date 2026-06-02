@@ -9,7 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Nylo\LaravelFCM\Contracts\FcmNotifiable;
 use Nylo\LaravelFCM\Models\FcmMessage;
+use Nylo\LaravelFCM\Services\FcmCloudMessagingService;
 
 class ProcessFcmNotificationsJob implements ShouldQueue
 {
@@ -21,6 +23,9 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  FcmMessage|array<string, mixed>  $notification
+     * @param  mixed  $notifiable  The entity to notify; expected to implement FcmNotifiable.
      */
     public function __construct(FcmMessage|array $notification, mixed $notifiable)
     {
@@ -34,10 +39,8 @@ class ProcessFcmNotificationsJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         if (empty(config('firebase_service_account_json'))) {
             Log::error('Laravel FCM Channel: Firebase service account json is not set');
@@ -45,13 +48,23 @@ class ProcessFcmNotificationsJob implements ShouldQueue
             return;
         }
 
-        $fcmDevices = $this->notifiable->fcmDevices()->active()->withPushToken();
+        $notifiable = $this->notifiable;
+
+        if (! $notifiable instanceof FcmNotifiable) {
+            Log::warning('Laravel FCM Channel: notifiable ['.get_debug_type($notifiable).'] does not implement '.FcmNotifiable::class.' and was skipped; no FCM notifications were sent. Implement the contract on your notifiable model (the HasFcmDevices trait already satisfies it).');
+
+            return;
+        }
+
+        $fcmDevices = $notifiable->fcmDevices()
+            ->active()
+            ->withPushToken();
 
         if ($fcmDevices->count() === 0) {
             return;
         }
 
-        $fcmCloudMessagingService = resolve('Nylo\LaravelFCM\Services\FcmCloudMessagingService');
+        $fcmCloudMessagingService = resolve(FcmCloudMessagingService::class);
 
         $fcmDevices->chunk(500, function ($devices) use ($fcmCloudMessagingService) {
             try {
@@ -66,10 +79,9 @@ class ProcessFcmNotificationsJob implements ShouldQueue
      * Handle a job failure.
      *
      * @param  Exception  $exception
-     * @return void
      */
-    public function failed($exception)
+    public function failed($exception): void
     {
-        \Log::error('[ProcessFcmNotificationsJob] Job failed: '.$exception->getMessage());
+        Log::error('[ProcessFcmNotificationsJob] Job failed: '.$exception->getMessage());
     }
 }

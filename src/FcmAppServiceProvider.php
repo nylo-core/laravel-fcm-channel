@@ -73,7 +73,12 @@ class FcmAppServiceProvider extends ServiceProvider
     protected function registerRoutes()
     {
         $middleware = config('laravelfcm.middleware', ['auth:sanctum']);
-        array_push($middleware, AppApiRequestMiddleware::class);
+
+        if (! is_array($middleware)) {
+            $middleware = [$middleware];
+        }
+
+        $middleware[] = AppApiRequestMiddleware::class;
 
         Route::group([
             'prefix' => config('laravelfcm.path', 'api/fcm/'),

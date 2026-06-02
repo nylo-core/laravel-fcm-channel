@@ -4,6 +4,7 @@ namespace Nylo\LaravelFCM\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Nylo\LaravelFCM\Models\FcmDevice;
 
 class FcmUpdateMetaRequest extends FormRequest
 {
@@ -17,14 +18,14 @@ class FcmUpdateMetaRequest extends FormRequest
         $device = $this->input('device');
 
         return Auth::check() &&
-               $device &&
+               $device instanceof FcmDevice &&
                $device->notifyable_id === Auth::id();
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function rules()
     {

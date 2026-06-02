@@ -5,3 +5,4 @@ vendor
 CLAUDE.md
 .claude
 .phpunit.cache
+phpstan.neon

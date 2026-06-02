@@ -67,6 +67,10 @@ class InstallCommand extends Command
 
         $appConfig = file_get_contents(config_path('app.php'));
 
+        if ($appConfig === false) {
+            return;
+        }
+
         if (Str::contains($appConfig, $namespace.'\\Providers\\FcmAppServiceProvider::class')) {
             return;
         }
@@ -77,10 +81,16 @@ class InstallCommand extends Command
             $appConfig
         ));
 
+        $providerStub = file_get_contents(app_path('Providers/FcmAppServiceProvider.php'));
+
+        if ($providerStub === false) {
+            return;
+        }
+
         file_put_contents(app_path('Providers/FcmAppServiceProvider.php'), str_replace(
             "namespace App\Providers;",
             "namespace {$namespace}\Providers;",
-            file_get_contents(app_path('Providers/FcmAppServiceProvider.php'))
+            $providerStub
         ));
     }
 }

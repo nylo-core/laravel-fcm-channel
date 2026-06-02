@@ -31,6 +31,7 @@
         "kreait/firebase-php": "^7.12"
     },
     "require-dev": {
+        "larastan/larastan": "^3.10",
         "laravel/pint": "^1.27",
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "phpunit/phpunit": "^12.5.22"
@@ -46,7 +47,8 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M"
     },
     "config": {
         "sort-packages": true
