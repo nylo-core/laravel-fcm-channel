@@ -27,13 +27,13 @@
     ],
     "require": {
         "php": ">=8.1",
-        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x|12.x",
-        "kreait/firebase-php": "^7.12"
+        "illuminate/support": "~5.8.0|6.x|7.x|8.x|9.x|10.x|11.x|12.x|13.x",
+        "kreait/firebase-php": "^7.12|^8.0"
     },
     "require-dev": {
         "larastan/larastan": "^3.10",
         "laravel/pint": "^1.27",
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
         "phpunit/phpunit": "^12.5.22"
     },
     "autoload": {
