@@ -4,6 +4,8 @@ namespace Nylo\LaravelFCM\Test\Feature;
 
 use Illuminate\Support\Facades\DB;
 use Nylo\LaravelFCM\Models\FcmDevice;
+use Nylo\LaravelFCM\Models\FcmMessage;
+use Nylo\LaravelFCM\Services\FcmCloudMessagingService;
 use Nylo\LaravelFCM\Test\TestCase;
 
 class FcmCloudMessagingServiceTest extends TestCase
@@ -92,5 +94,73 @@ class FcmCloudMessagingServiceTest extends TestCase
             ->update(['is_active' => false]);
 
         $this->assertEquals(0, $count);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPayload(FcmMessage $message): array
+    {
+        $service = (new \ReflectionClass(FcmCloudMessagingService::class))->newInstanceWithoutConstructor();
+        $cloudMessage = (new \ReflectionMethod(FcmCloudMessagingService::class, 'buildCloudMessage'))
+            ->invoke($service, $message);
+
+        return json_decode(json_encode($cloudMessage), true);
+    }
+
+    public function test_android_sound_drops_the_file_extension()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi')->sound('new_message.mp3'));
+
+        $this->assertSame('new_message', $payload['android']['notification']['sound']);
+        $this->assertSame('new_message.mp3', $payload['apns']['payload']['aps']['sound']);
+    }
+
+    public function test_android_sound_without_extension_is_unchanged()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi')->sound('chime'));
+
+        $this->assertSame('chime', $payload['android']['notification']['sound']);
+    }
+
+    public function test_android_channel_id_is_sent()
+    {
+        $payload = $this->buildPayload(
+            (new FcmMessage)->title('Hi')->sound('new_message.mp3')->androidChannelId('chat_messages')
+        );
+
+        $this->assertSame('chat_messages', $payload['android']['notification']['channel_id']);
+        $this->assertSame('new_message', $payload['android']['notification']['sound']);
+    }
+
+    public function test_android_channel_id_is_sent_with_default_sound()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi')->androidChannelId('general'));
+
+        $this->assertSame('general', $payload['android']['notification']['channel_id']);
+        $this->assertSame('default', $payload['android']['notification']['sound']);
+    }
+
+    public function test_no_android_channel_id_by_default()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi'));
+
+        $this->assertArrayNotHasKey('channel_id', $payload['android']['notification'] ?? []);
+    }
+
+    public function test_default_sound_is_sent_when_no_sound_is_set()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi'));
+
+        $this->assertSame('default', $payload['android']['notification']['sound']);
+        $this->assertSame('default', $payload['apns']['payload']['aps']['sound']);
+    }
+
+    public function test_without_default_sound_sends_no_sound()
+    {
+        $payload = $this->buildPayload((new FcmMessage)->title('Hi')->withoutDefaultSound());
+
+        $this->assertArrayNotHasKey('sound', $payload['android']['notification'] ?? []);
+        $this->assertArrayNotHasKey('sound', $payload['apns']['payload']['aps'] ?? []);
     }
 }

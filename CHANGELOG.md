@@ -1,3 +1,16 @@
+## [2.1.0] - 2026-11-14
+
+### Added
+- **Laravel 13 and firebase-php 8 support** - `illuminate/support` now allows `13.x` and `kreait/firebase-php` allows `^8.0` alongside `^7.12`. Testbench 11 added to the dev dependencies for the matching test matrix
+- **`FcmMessage::androidChannelId()`** - sends the message to an Android notification channel (`android.notification.channel_id`). On Android 8.0+ the channel decides which sound plays, so a custom sound only plays when the app has created that channel with that sound. `createFromArray()` accepts it under the `androidChannelId` key
+
+### Fixed
+- **Default sound was never sent** - when no `sound()` was set, the default sound was applied to the message and then overwritten by the APNs and Android configs set straight after, so iOS notifications arrived silent. The default sound is now set on both configs. `withoutDefaultSound()` still sends no sound
+- **Custom sounds never played on Android** - the sound name was sent to Android unchanged, but Android looks up `res/raw` resources by name without the file extension, so `sound('chime.mp3')` never matched. Android now receives the name without its extension (`chime`), while iOS still receives the full filename
+
+### Tests
+- Test suite 96 → 106 tests (204 → 220 assertions). New coverage: the Android channel ID in `toArray()`, `createFromArray()` and the built payload, the extension-free Android sound name, and the default sound on both platforms
+
 ## [2.0.0] - 2026-06-02
 
 ### ⚠️ Breaking changes

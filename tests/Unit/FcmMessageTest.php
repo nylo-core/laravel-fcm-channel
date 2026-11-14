@@ -187,4 +187,25 @@ class FcmMessageTest extends TestCase
 
         $this->assertInstanceOf(FcmMessage::class, $message);
     }
+
+    public function test_can_set_android_channel_id()
+    {
+        $message = new FcmMessage;
+        $result = $message->androidChannelId('chat_messages');
+
+        $this->assertInstanceOf(FcmMessage::class, $result);
+        $this->assertEquals('chat_messages', $message->toArray()['androidChannelId']);
+    }
+
+    public function test_create_from_array_reads_android_channel_id()
+    {
+        $message = FcmMessage::createFromArray(['androidChannelId' => 'likes']);
+
+        $this->assertEquals('likes', $message->toArray()['androidChannelId']);
+    }
+
+    public function test_android_channel_id_is_omitted_when_not_set()
+    {
+        $this->assertArrayNotHasKey('androidChannelId', (new FcmMessage)->toArray());
+    }
 }

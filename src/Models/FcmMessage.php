@@ -23,6 +23,8 @@ class FcmMessage
 
     private ?string $priority = null;
 
+    private ?string $androidChannelId = null;
+
     /** @var array<string, mixed> */
     private array $data = [];
 
@@ -55,6 +57,10 @@ class FcmMessage
 
         if (isset($message['sound']) && is_string($message['sound'])) {
             $fcmMessage->sound($message['sound']);
+        }
+
+        if (isset($message['androidChannelId']) && is_string($message['androidChannelId'])) {
+            $fcmMessage->androidChannelId($message['androidChannelId']);
         }
 
         if (isset($message['priority'])) {
@@ -129,6 +135,19 @@ class FcmMessage
     public function sound(string $sound): self
     {
         $this->sound = $sound;
+
+        return $this;
+    }
+
+    /**
+     * Set the Android notification channel the message is delivered to.
+     *
+     * On Android 8.0+ the channel decides the sound, so a custom sound only
+     * plays when the app has created this channel with that sound.
+     */
+    public function androidChannelId(string $channelId): self
+    {
+        $this->androidChannelId = $channelId;
 
         return $this;
     }
@@ -258,6 +277,10 @@ class FcmMessage
 
         if (! empty($this->priority)) {
             $message['priority'] = $this->priority;
+        }
+
+        if (! empty($this->androidChannelId)) {
+            $message['androidChannelId'] = $this->androidChannelId;
         }
 
         if (! empty($this->data)) {

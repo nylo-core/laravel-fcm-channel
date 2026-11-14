@@ -249,6 +249,7 @@ $notification->body('Hello, World!'); // Body of the notification
 $notification->image('https://example.com/image.jpg'); // Image URL
 $notification->badge(1); // Badge number
 $notification->sound('custom_sound'); // Sound to play (by default it will play the 'default' sound)
+$notification->androidChannelId('chat_messages'); // Android notification channel (Android 8.0+ plays the channel's sound)
 $notification->data(['key' => 'value']); // Custom data
 $notification->withoutDefaultSound(); // Disable the default sound
 $notification->priorityHighest(); // Set the priority to 'high'

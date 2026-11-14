@@ -153,7 +153,11 @@ class FcmCloudMessagingService extends FirebaseService
         $message = CloudMessage::new()->withNotification($notification);
 
         $apnsConfig = ApnsConfig::new();
-        $androidConfig = AndroidConfig::new();
+
+        $androidChannelId = $firebaseMessageArray['androidChannelId'] ?? null;
+        $androidConfig = is_string($androidChannelId) && $androidChannelId !== ''
+            ? AndroidConfig::fromArray(['notification' => ['channel_id' => $androidChannelId]])
+            : AndroidConfig::new();
 
         $badge = $firebaseMessageArray['badge'] ?? null;
         if (is_int($badge) && $badge !== 0) {
@@ -163,9 +167,10 @@ class FcmCloudMessagingService extends FirebaseService
         $sound = $firebaseMessageArray['sound'] ?? null;
         if (is_string($sound) && $sound !== '') {
             $apnsConfig = $apnsConfig->withSound($sound);
-            $androidConfig = $androidConfig->withSound($sound);
+            $androidConfig = $androidConfig->withSound($this->androidSoundName($sound));
         } elseif (empty($firebaseMessageArray['withoutDefaultSound'])) {
-            $message = $message->withDefaultSounds();
+            $apnsConfig = $apnsConfig->withDefaultSound();
+            $androidConfig = $androidConfig->withDefaultSound();
         }
 
         $message = $message
@@ -187,6 +192,20 @@ class FcmCloudMessagingService extends FirebaseService
         }
 
         return $message;
+    }
+
+    /**
+     * Android resolves a sound as a res/raw resource name, which has no file
+     * extension, so "new_message.mp3" must be sent as "new_message".
+     *
+     * @param  non-empty-string  $sound
+     * @return non-empty-string
+     */
+    private function androidSoundName(string $sound): string
+    {
+        $name = pathinfo($sound, PATHINFO_FILENAME);
+
+        return $name !== '' ? $name : $sound;
     }
 
     /**
