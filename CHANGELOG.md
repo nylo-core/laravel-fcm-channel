@@ -1,3 +1,8 @@
+## [2.1.1] - 2026-11-14
+
+### Changed
+- README: clarified what `php artisan laravelfcm:install` publishes and registers
+
 ## [2.1.0] - 2026-11-14
 
 ### Added

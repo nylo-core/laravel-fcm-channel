@@ -42,11 +42,10 @@ Run the `install` command.
 ```bash
 php artisan laravelfcm:install
 ```
-This will add a (`laravelfcm.php`) config file
 
-ServiceProvider to your app.php: `App\Providers\FcmAppServiceProvider::class`
+This will publish the `config/laravelfcm.php` config file and an `App\Providers\FcmAppServiceProvider` class, and register that provider in `config/app.php`.
 
-Then, ask if you want to run the migrations.
+It will then ask if you want to run the migrations.
 
 Here are the tables it will migrate:
 * fcm_devices
